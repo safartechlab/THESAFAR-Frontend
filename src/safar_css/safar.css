@@ -1,0 +1,42 @@
+.font-color{
+    color:  #fdf4e5 !important;
+}
+
+.header_color{
+    background-color:#133547 !important;
+}
+
+.singup {
+  position: relative;
+}
+
+.singup:hover .login_sub {
+  opacity: 1;
+  visibility: visible;
+}
+
+.button-color{
+    background-color: #133547;
+    color: #fdf4e5;
+}
+
+.button-color:hover{
+    background-color:  #fdf4e5;
+    color: #133547;
+    font-weight: 500;
+}
+
+.login_sub {
+  position: absolute;
+  top: -40; /* aligned below the button */
+  right: -8;
+  width: max-content;
+  background: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  z-index: 999;
+}
