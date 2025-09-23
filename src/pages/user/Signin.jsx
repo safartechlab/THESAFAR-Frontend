@@ -2,7 +2,12 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Col, Container, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
-
+import axios from 'axios'
+import { useNavigate } from "react-router-dom";
+import {Baseurl} from '../../baseurl'
+import { showToast } from "../../store/slice/toast_slice";
+import { useDispatch } from "react-redux";
+import { initiallogin } from "../../store/slice/authSlice";
 const validationSchema = yup.object().shape({
   email: yup.string().email("Invalid Email").required("Email is required"),
   password: yup
@@ -11,20 +16,50 @@ const validationSchema = yup.object().shape({
     .required("Password is required."),
 });
 
+const initialvalue = {
+  email: "",
+  password: "",
+};
 const Signin = () => {
-  const initialvalue = {
-    email: "",
-    password: "",
-  };
+  const dispatch = useDispatch()
+
+  const navigate = useNavigate()
+  const handlesumit = async (values, { setSubmitting }) => {
+  try {
+    const res = await axios.post(`${Baseurl}user/login`, values);
+    console.log(res)
+    // ✅ Backend response check
+    if (res.status) {
+      dispatch(initiallogin(res.data.data))
+      localStorage.setItem("token", res.data.token);
+      dispatch(showToast({message:res.data.message,type:'success'}))
+      // alert(res.data.message );
+      navigate('/')
+    } else {
+      dispatch(showToast({message:res.data.message,type:'error'}))
+      alert(res.data?.message || "Login failed!");
+    }
+  } catch (error) {
+    console.error("Login Error:", error);
+      dispatch(showToast({message:error.response.data?.message,type:'error'}))
+      // Server responded with an error
+      // alert(error.response.data?.message);
+    
+  } finally {
+    setSubmitting(false); // ✅ Stop the loading state
+  }
+};
 
   return (
     <>
       {/* Header Section */}
+      <Row xs={12} className="mx-0" style={{backgroundColor:'#fffbf5ff'}}>
+
       <Container className="text-center mt-5 mb-4">
         <Row>
           <Col>
-            <h1 className="fw-bold fs-2 fs-md-1 text-dark">
-              Sign In <br /> To Your Account
+            <h1 className="fw-bold fs-2 fs-md-1 font-color">
+              Welcome back! Sign in
             </h1>
             <p className="fs-6 text-muted mt-2">
               Access your account to enjoy personalized features, faster checkout,
@@ -36,44 +71,26 @@ const Signin = () => {
 
       {/* Sign In Card */}
       <Container className="mb-5">
-        <Row className="gy-4 shadow-lg border rounded-4 p-4 bg-white align-items-center">
+        <Row className="gy-4 shadow-lg border  rounded-4 p-4 bg-white align-items-center" style={{backgroundColor:'#fffbf5ff'}}>
           {/* Left Column - Form */}
-          <Col xs={12} md={6} className="p-4 border-md-end">
-            <Formik initialValues={initialvalue} validationSchema={validationSchema}>
-              <Form>
+          <Col xs={12} md={6} className="p-4 border-md-end border-end">
+            <Formik initialValues={initialvalue} validationSchema={validationSchema} onSubmit={handlesumit}>
+              <Form className="px-5">
                 {/* Email */}
                 <div className="mb-4">
-                  <Field
-                    name="email"
-                    type="email"
-                    placeholder="Email Address *"
-                    className="form-control p-3 rounded-3 shadow-sm"
-                  />
-                  <ErrorMessage
-                    name="email"
-                    component="div"
-                    className="text-danger mt-1 small"
-                  />
+                  <Field name="email" type="email" placeholder="Email Address *" className="form-control p-3 rounded-3 shadow-sm" />
+                  <ErrorMessage name="email"component="div"className="text-danger mt-1 small"/>
                 </div>
 
                 {/* Password */}
                 <div className="mb-3">
-                  <Field
-                    name="password"
-                    type="password"
-                    placeholder="Password *"
-                    className="form-control p-3 rounded-3 shadow-sm"
-                  />
-                  <ErrorMessage
-                    name="password"
-                    component="div"
-                    className="text-danger mt-1 small"
-                  />
+                  <Field name="password" type="password" placeholder="Password *" className="form-control p-3 rounded-3 shadow-sm"/>
+                  <ErrorMessage name="password" component="div" className="text-danger mt-1 small"/>
                 </div>
 
                 {/* Remember & Forgot */}
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <div>
+                  <div className="px-1">
                     <input type="checkbox" id="remember" className="me-2" />
                     <label htmlFor="remember" className="small text-muted">
                       Keep me logged in
@@ -87,9 +104,7 @@ const Signin = () => {
                 {/* Submit */}
                 <button
                   type="submit"
-                  className="btn btn-dark w-100 py-2 fw-bold rounded-3 shadow-sm"
-                  style={{ background: "#133547" }}
-                >
+                  className="btn button-color w-100 py-2 fw-bold rounded-3 shadow-sm">
                   Log In
                 </button>
               </Form>
@@ -98,21 +113,22 @@ const Signin = () => {
 
           {/* Right Column - Sign Up */}
           <Col xs={12} md={6} className="text-center p-4">
+          <div className="px-5">
+
             <h4 className="fw-bold mb-3">Don't have an account?</h4>
             <p className="text-muted mb-4">
-              Add items to your wishlist, get personalized recommendations, and
-              track your orders — register now!
+              Don’t miss out on the best deals! By signing up, you’ll be the first to know about flash sales, seasonal discounts, and new collections. Start your journey with us and experience a smarter, more personalized shopping experience.
+              <span className="fw-bold">
+                - Register Now and Explore 
+                </span>
+
             </p>
-            <Link
-              to="/Signup"
-              className="btn w-100 py-2 fw-bold rounded-3 shadow-sm"
-              style={{ background: "#fdf4e5", color: "#133547" }}
-            >
-              Create Account
-            </Link>
+            <Link to="/Signup" className="btn w-100 py-2 button-color fw-bold rounded-3 mt-4 shadow-sm">Create Account</Link>
+                </div>
           </Col>
         </Row>
       </Container>
+                    </Row>
     </>
   );
 };
