@@ -2,7 +2,7 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { Row, Col, InputGroup, Form } from "react-bootstrap";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getcategory } from "../../store/slice/category_slice";
 import { LuUserRound, LuShoppingCart } from "react-icons/lu";
@@ -17,6 +17,8 @@ const Header = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [category, setCategory] = React.useState("All");
 
+  const [location, setLocation] = useState("Fetching...");
+
   const userdetails = useSelector((state) => state.auth?.user);
   const auth = useSelector((state) => state.auth?.auth);
   const categories = useSelector((state) => state.category.categorylist);
@@ -25,6 +27,29 @@ const Header = () => {
   useEffect(() => {
     dispatch(getcategory());
   }, [dispatch]);
+
+  // Fetch user location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude, longitude } = pos.coords;
+
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+          const data = await res.json();
+          const city = data.address.city || data.address.town || data.address.village;
+          const country = data.address.country;
+          setLocation(`${city ? city + ", " : ""}${country}`);
+        } catch (error) {
+          setLocation("Unknown Location");
+        }
+      });
+    } else {
+      setLocation("Location not supported");
+    }
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -45,7 +70,7 @@ const Header = () => {
   };
 
   return (
-    <Navbar expand="lg" className="header_color" sticky="">
+    <Navbar expand="lg" className="header_color">
       <Container
         fluid
         className="d-flex align-items-center justify-content-between"
@@ -63,7 +88,6 @@ const Header = () => {
         <Col xs={12} md={6} lg={6}>
           <Form onSubmit={handleSearch}>
             <InputGroup>
-              {/* Dynamic categories from Redux */}
               <Form.Select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -110,26 +134,33 @@ const Header = () => {
           </Form>
         </Col>
 
-        {/* Nav Links */}
+        {/* Nav Links with Location */}
         <Navbar.Collapse
           id="basic-navbar-nav"
           className="justify-content-center"
         >
-          <Nav>
+          <Nav className="menu-links">
             <Link
               to="/about"
-              className=" px-2 py-2 text-decoration-none fw-bold font-color"
+              className="px-3 py-2 text-decoration-none fw-bold font-color"
             >
               About
             </Link>
             <Link
               to="/contact"
-              className=" px-2 py-2 text-decoration-none fw-bold font-color"
+              className="px-3 py-2 text-decoration-none fw-bold font-color"
             >
               Contact
             </Link>
+            {/* Location instead of FAQ */}
+            <span className="px-3 py-2 fw-bold font-color">
+              {location}
+            </span>
           </Nav>
         </Navbar.Collapse>
+
+        {/* Divider before icons */}
+        <div className="header-divider mx-3"></div>
 
         {/* Right side: User + Cart */}
         <Row className="align-items-center">
