@@ -1,0 +1,26 @@
+.category-tags {
+  display: flex;
+  flex-wrap: nowrap;      /* Keep items in a single line */
+  overflow-x: auto;       /* Enable horizontal scroll if too many */
+  scrollbar-width: thin;  /* Firefox thin scrollbar */
+  -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
+}
+
+.category-tags::-webkit-scrollbar {
+  height: 6px;           /* Small horizontal scrollbar */
+}
+
+.category {
+  white-space: nowrap;
+  margin-top: 10px;    /* Prevent text from breaking */
+  padding: 8px 16px;
+  /* border-radius: 20px; */
+  /* background: #f5f5f5; */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.category:hover {
+  background: #ddd;
+}
