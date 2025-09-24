@@ -2,22 +2,20 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { Row, Col, InputGroup, Form } from "react-bootstrap";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getcategory } from "../../store/slice/category_slice";
 import { LuUserRound, LuShoppingCart } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import { clearauth } from "../../store/slice/authSlice";
-import { FaRegHeart } from "react-icons/fa";
-import { FaSearch } from "react-icons/fa";
+import { FaRegHeart, FaSearch } from "react-icons/fa";
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [category, setCategory] = React.useState("All");
 
-  const [location, setLocation] = useState("Fetching...");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("All");
 
   const userdetails = useSelector((state) => state.auth?.user);
   const auth = useSelector((state) => state.auth?.auth);
@@ -28,41 +26,18 @@ const Header = () => {
     dispatch(getcategory());
   }, [dispatch]);
 
-  // Fetch user location
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const { latitude, longitude } = pos.coords;
-
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-          );
-          const data = await res.json();
-          const city = data.address.city || data.address.town || data.address.village;
-          const country = data.address.country;
-          setLocation(`${city ? city + ", " : ""}${country}`);
-        } catch (error) {
-          setLocation("Unknown Location");
-        }
-      });
-    } else {
-      setLocation("Location not supported");
-    }
-  }, []);
-
+  // Search handler
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(
-        `/search?category=${encodeURIComponent(
-          category
-        )}&query=${encodeURIComponent(searchTerm)}`
+        `/search?category=${encodeURIComponent(category)}&query=${encodeURIComponent(searchTerm)}`
       );
       setSearchTerm("");
     }
   };
 
+  // Logout
   const logout = () => {
     localStorage.removeItem("token");
     dispatch(clearauth());
@@ -71,10 +46,7 @@ const Header = () => {
 
   return (
     <Navbar expand="lg" className="header_color">
-      <Container
-        fluid
-        className="d-flex align-items-center justify-content-between"
-      >
+      <Container fluid className="d-flex align-items-center justify-content-between">
         {/* Logo */}
         <Navbar.Brand
           as={Link}
@@ -134,11 +106,8 @@ const Header = () => {
           </Form>
         </Col>
 
-        {/* Nav Links with Location */}
-        <Navbar.Collapse
-          id="basic-navbar-nav"
-          className="justify-content-center"
-        >
+        {/* Nav Links */}
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-center">
           <Nav className="menu-links">
             <Link
               to="/about"
@@ -152,10 +121,6 @@ const Header = () => {
             >
               Contact
             </Link>
-            {/* Location instead of FAQ */}
-            <span className="px-3 py-2 fw-bold font-color">
-              {location}
-            </span>
           </Nav>
         </Navbar.Collapse>
 
