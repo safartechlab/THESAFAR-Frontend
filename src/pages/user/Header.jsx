@@ -2,20 +2,20 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { Row, Col, InputGroup, Form } from "react-bootstrap";
-import React, { useEffect } from "react";
+import  { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getcategory } from "../../store/slice/category_slice";
 import { LuUserRound, LuShoppingCart } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import { clearauth } from "../../store/slice/authSlice";
-import { FaRegHeart } from "react-icons/fa";
-import { FaSearch } from "react-icons/fa";
+import { FaRegHeart, FaSearch } from "react-icons/fa";
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [category, setCategory] = React.useState("All");
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("All");
 
   const userdetails = useSelector((state) => state.auth?.user);
   const auth = useSelector((state) => state.auth?.auth);
@@ -26,18 +26,18 @@ const Header = () => {
     dispatch(getcategory());
   }, [dispatch]);
 
+  // Search handler
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(
-        `/search?category=${encodeURIComponent(
-          category
-        )}&query=${encodeURIComponent(searchTerm)}`
+        `/search?category=${encodeURIComponent(category)}&query=${encodeURIComponent(searchTerm)}`
       );
       setSearchTerm("");
     }
   };
 
+  // Logout
   const logout = () => {
     localStorage.removeItem("token");
     dispatch(clearauth());
@@ -45,11 +45,8 @@ const Header = () => {
   };
 
   return (
-    <Navbar expand="lg" className="header_color" sticky="">
-      <Container
-        fluid
-        className="d-flex align-items-center justify-content-between"
-      >
+    <Navbar expand="lg" className="header_color">
+      <Container fluid className="d-flex align-items-center justify-content-between">
         {/* Logo */}
         <Navbar.Brand
           as={Link}
@@ -63,7 +60,6 @@ const Header = () => {
         <Col xs={12} md={6} lg={6}>
           <Form onSubmit={handleSearch}>
             <InputGroup>
-              {/* Dynamic categories from Redux */}
               <Form.Select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -111,25 +107,25 @@ const Header = () => {
         </Col>
 
         {/* Nav Links */}
-        <Navbar.Collapse
-          id="basic-navbar-nav"
-          className="justify-content-center"
-        >
-          <Nav>
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-center">
+          <Nav className="menu-links">
             <Link
               to="/about"
-              className=" px-2 py-2 text-decoration-none fw-bold font-color"
+              className="px-3 py-2 text-decoration-none fw-bold font-color"
             >
               About
             </Link>
             <Link
               to="/contact"
-              className=" px-2 py-2 text-decoration-none fw-bold font-color"
+              className="px-3 py-2 text-decoration-none fw-bold font-color"
             >
               Contact
             </Link>
           </Nav>
         </Navbar.Collapse>
+
+        {/* Divider before icons */}
+        <div className="header-divider mx-3"></div>
 
         {/* Right side: User + Cart */}
         <Row className="align-items-center">
