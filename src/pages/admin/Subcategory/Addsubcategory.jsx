@@ -32,11 +32,7 @@ const Addsubcategory = () => {
   category: Yup.string().required("Category is required"),
   sizes: Yup.array()
     .of(Yup.string().required("Size is required"))
-    .when("subcategory", {
-      is: (subcategory) => subcategory === "Shoes" || subcategory === "Clothes",
-      then: (schema) => schema.min(1, "At least one size is required"),
-      otherwise: (schema) => schema.nullable().notRequired(),
-    }),
+    .min(1, "At least one size is required"),
 });
 
 
