@@ -37,7 +37,7 @@ const Sidebar = () =>{
                                 <div className='d-flex gap-3 align-items-center justify-self-start'>
                                 <div className='sidebar-text-color fs-3 ps-3 py-2'><icon.icon/></div>
                                 {icon.path && (
-                                    <Link to={icon.path} onClick={hanldeclose} className='sidebar-text-color text-decoration-none' style={{fontSize:'20px'}}>{icon.name}</Link>
+                                    <Link to={icon.path} className='sidebar-text-color text-decoration-none' style={{fontSize:'20px'}}>{icon.name}</Link>
                                 )}
                                 </div>
                             </li>

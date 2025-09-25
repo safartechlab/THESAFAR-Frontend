@@ -13,6 +13,7 @@ const Addproduct = () => {
   const [hassize, sethassize] = useState(false);
   const dispatch = useDispatch();
 
+  // ✅ Yup with number transforms
   const ProductSchema = Yup.object().shape({
     productName: Yup.string().required("Product name is required"),
     gender: Yup.string()
@@ -25,21 +26,34 @@ const Addproduct = () => {
     sizes: Yup.array().of(
       Yup.object().shape({
         size: Yup.string().required("Size is required"),
-        price: Yup.number().min(0, "Price must be >= 0").required("Price is required"),
-        stock: Yup.number().min(0, "Stock cannot be negative").required("Stock is required"),
+        price: Yup.number()
+          .transform((_, orig) => (orig === "" ? undefined : Number(orig)))
+          .min(0, "Price must be >= 0")
+          .required("Price is required"),
+        stock: Yup.number()
+          .transform((_, orig) => (orig === "" ? undefined : Number(orig)))
+          .min(0, "Stock cannot be negative")
+          .required("Stock is required"),
       })
     ),
-    price: Yup.number().when("sizes", {
-      is: (sizes) => !sizes || sizes.length === 0,
-      then: (schema) => schema.min(0, "Price must be >= 0").required("Price is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    stock: Yup.number().when("sizes", {
-      is: (sizes) => !sizes || sizes.length === 0,
-      then: (schema) => schema.min(0, "Stock cannot be negative").required("Stock is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    discount: Yup.number().min(0, "Discount cannot be negative").default(0),
+    price: Yup.number()
+      .transform((_, orig) => (orig === "" ? undefined : Number(orig)))
+      .when("sizes", {
+        is: (sizes) => !sizes || sizes.length === 0,
+        then: (schema) => schema.min(0).required("Price is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+    stock: Yup.number()
+      .transform((_, orig) => (orig === "" ? undefined : Number(orig)))
+      .when("sizes", {
+        is: (sizes) => !sizes || sizes.length === 0,
+        then: (schema) => schema.min(0).required("Stock is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+    discount: Yup.number()
+      .transform((_, orig) => (orig === "" ? 0 : Number(orig)))
+      .min(0, "Discount cannot be negative")
+      .default(0),
     discountType: Yup.string().oneOf(["Percentage", "Flat"]).nullable(),
   });
 
@@ -58,10 +72,9 @@ const Addproduct = () => {
   };
 
   const handleimg = (e) => {
-    const files = e.target.files;
-    const fileArray = Array.from(files);
+    const files = Array.from(e.target.files);
 
-    const imagepreview = fileArray.map(
+    const previews = files.map(
       (file) =>
         new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -71,51 +84,51 @@ const Addproduct = () => {
         })
     );
 
-    Promise.all(imagepreview).then((images) => {
+    Promise.all(previews).then((images) => {
       setimgprev(images);
-      setselectedfile(fileArray);
+      setselectedfile(files);
     });
   };
 
-  const handlesumit = async (values, { resetForm }) => {
-    try {
-      const allFromData = new FormData();
-      allFromData.append("folder", "productImg");
+ const handlesumit = async (values, { resetForm }) => {
+  try {
+    console.log("Submitting values:", values);
 
-      Object.entries(values).forEach(([key, value]) => {
-        if (key === "sizes") {
-          allFromData.append(key, JSON.stringify(value));
-        } else {
-          allFromData.append(key, value);
-        }
-      });
+    const allFromData = new FormData();
 
-      selectedfile.forEach((file) => {
-        allFromData.append("images", file);
-      });
-
-      const config = { headers: { "Content-Type": "multipart/form-data" } };
-
-      const res = await axios.post(`${Baseurl}product/addproduct`, allFromData, config);
-
-      if (res.status) {
-        dispatch(showToast({ message: res.data.message, type: "success" }));
-        resetForm();
-        setimgprev([]);
-        setselectedfile([]);
-      } else {
-        dispatch(showToast({ message: res.data.message, type: "error" }));
+    Object.entries(values).forEach(([key, value]) => {
+      if (key === "sizes") {
+        allFromData.append("sizes", JSON.stringify(value)); // ✅ stringify sizes
+      } else if (value !== "" && value !== null && value !== undefined) {
+        allFromData.append(key, value);
       }
-    } catch (error) {
-      console.log(error);
-      dispatch(
-        showToast({
-          message: error?.response?.data?.message || "Something went wrong",
-          type: "error",
-        })
-      );
+    });
+
+    selectedfile.forEach((file) => {
+      allFromData.append("images", file);
+    });
+
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    const res = await axios.post(`${Baseurl}product/addproduct`, allFromData, config);
+
+    if (res.status) {
+      dispatch(showToast({ message: res.data.message, type: "success" }));
+      resetForm();
+      setimgprev([]);
+      setselectedfile([]);
+    } else {
+      dispatch(showToast({ message: res.data.message, type: "error" }));
     }
-  };
+  } catch (error) {
+    console.log(error);
+    dispatch(
+      showToast({
+        message: error?.response?.data?.message || "Something went wrong",
+        type: "error",
+      })
+    );
+  }
+};
 
   return (
     <Formik initialValues={initialValues} validationSchema={ProductSchema} onSubmit={handlesumit}>
@@ -131,7 +144,6 @@ const Addproduct = () => {
             handleimg={handleimg}
             hassize={hassize}
             sethassize={sethassize}
-            
           />
         </Form>
       )}
