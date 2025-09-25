@@ -2,7 +2,7 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { Row, Col, InputGroup, Form } from "react-bootstrap";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getcategory } from "../../store/slice/category_slice";
 import { LuUserRound, LuShoppingCart } from "react-icons/lu";
@@ -31,7 +31,9 @@ const Header = () => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(
-        `/search?category=${encodeURIComponent(category)}&query=${encodeURIComponent(searchTerm)}`
+        `/search?category=${encodeURIComponent(
+          category
+        )}&query=${encodeURIComponent(searchTerm)}`
       );
       setSearchTerm("");
     }
@@ -41,12 +43,15 @@ const Header = () => {
   const logout = () => {
     localStorage.removeItem("token");
     dispatch(clearauth());
-    navigate("/signin");
+    navigate("/Signin");
   };
 
   return (
     <Navbar expand="lg" className="header_color">
-      <Container fluid className="d-flex align-items-center justify-content-between">
+      <Container
+        fluid
+        className="d-flex align-items-center justify-content-between"
+      >
         {/* Logo */}
         <Navbar.Brand
           as={Link}
@@ -107,7 +112,10 @@ const Header = () => {
         </Col>
 
         {/* Nav Links */}
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-center">
+        <Navbar.Collapse
+          id="basic-navbar-nav"
+          className="justify-content-center"
+        >
           <Nav className="menu-links">
             <Link
               to="/about"

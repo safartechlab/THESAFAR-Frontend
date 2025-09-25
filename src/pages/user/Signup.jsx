@@ -47,7 +47,7 @@ const Signup = () => {
       if (res.status) {
         dispatch(showToast({message:res.data.message,type:'success'}))
         resetForm();
-        navigate("/signin");
+        navigate("/Signin");
       } else {
         dispatch(showToast({message:res.data.message,type:'error'}))
         // alert(res.data.data?.message || "Signup failed!");
