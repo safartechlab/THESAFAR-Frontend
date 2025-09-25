@@ -2,7 +2,7 @@ import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { FaOpencart } from "react-icons/fa";
 import { LuShoppingBasket } from "react-icons/lu";
 import { FaList } from "react-icons/fa"
-import { RiEqualizer2Line ,RiRestaurantLine,RiCustomSize } from "react-icons/ri";
+import { RiEqualizer2Line ,RiCustomSize } from "react-icons/ri";
 
 export const adminpages = [
     {
