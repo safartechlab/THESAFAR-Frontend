@@ -27,13 +27,18 @@ const Addsubcategory = () => {
         dispatch(getcategory())
     },[dispatch])
     
-   const validationSchema = Yup.object({
+  const validationSchema = Yup.object({
   subcategory: Yup.string().required("Subcategory name is required"),
   category: Yup.string().required("Category is required"),
   sizes: Yup.array()
     .of(Yup.string().required("Size is required"))
-    .min(1, "At least one size is required"),
+    .when("subcategory", {
+      is: (subcategory) => subcategory === "Shoes" || subcategory === "Clothes", // example condition
+      then: (schema) => schema.min(1, "At least one size is required"),
+      otherwise: (schema) => schema.nullable().notRequired(),
+    }),
 });
+
 
 const initialValues = {
   subcategory: "",
