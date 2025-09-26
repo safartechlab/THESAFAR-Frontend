@@ -7,7 +7,7 @@ const Layout = () => {
   const location = useLocation();
 
   const currentPath = location.pathname.toLowerCase();
-  const hideOnRoutes = ["/Signin", "/signup"];
+  const hideOnRoutes = ["/","/Signin", "/signup", "/forgot-password", "/otpverify","/reset-password", "/success" ];
 
   return (
     <>
