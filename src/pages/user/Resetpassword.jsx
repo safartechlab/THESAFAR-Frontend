@@ -27,7 +27,9 @@ const ResetPassword = () => {
     const otp = localStorage.getItem("resetOtp");
 
     if (!email || !otp) {
-      dispatch(showToast({ message: "Invalid reset attempt", type: "error" }));
+      dispatch(
+        showToast({ message: "Invalid reset attempt", type: "error" })
+      );
       navigate("/forgot-password");
       return;
     }
@@ -46,18 +48,32 @@ const ResetPassword = () => {
             type: "success",
           })
         );
+        // ✅ Cleanup
         localStorage.removeItem("resetEmail");
         localStorage.removeItem("resetOtp");
+
         navigate("/signin");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Reset password error:", error);
       dispatch(
         showToast({
-          message: error.response?.data?.message || "Failed to reset password",
+          message:
+            error.response?.data?.message ||
+            "Failed to reset password. Try again.",
           type: "error",
         })
       );
+
+      // ❌ Optional: if OTP expired or invalid, force user to restart flow
+      if (
+        error.response?.data?.message === "Invalid or expired OTP" ||
+        error.response?.data?.message?.includes("expired")
+      ) {
+        localStorage.removeItem("resetEmail");
+        localStorage.removeItem("resetOtp");
+        navigate("/forgot-password");
+      }
     } finally {
       setSubmitting(false);
     }

@@ -25,41 +25,24 @@ const OtpVerification = () => {
 
   const handleVerify = async () => {
     const enteredOtp = otp.join("");
-    const email = localStorage.getItem("resetEmail"); // saved earlier in ForgotPassword
+    const email = localStorage.getItem("resetEmail");
 
     if (!email) {
-      dispatch(
-        showToast({
-          message: "Email not found, please try again",
-          type: "error",
-        })
-      );
+      dispatch(showToast({ message: "Email not found, please try again", type: "error" }));
       navigate("/forgot-password");
       return;
     }
-    localStorage.setItem("resetOtp", enteredOtp);
-    dispatch(
-      showToast({
-        message: "OTP verified Successfully !.",
-        type: "success",
-      })
-    );
-    navigate("/reset-password");
 
     try {
       setLoading(true);
-      const res = await axios.post(`${Baseurl}user/resetpassword`, {
+      const res = await axios.post(`${Baseurl}user/verifyotp`, {
         email,
         otp: enteredOtp,
       });
 
       if (res.status === 200) {
-        dispatch(
-          showToast({
-            message: "OTP Verified! Set new password.",
-            type: "success",
-          })
-        );
+        localStorage.setItem("resetOtp", enteredOtp); 
+        dispatch(showToast({ message: "OTP verified successfully!", type: "success" }));
         navigate("/reset-password");
       }
     } catch (error) {
