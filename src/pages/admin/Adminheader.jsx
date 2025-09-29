@@ -67,7 +67,7 @@ const Adminheader = ({ onSearchChange }) => {
     <FaRegUserCircle className="fs-4" />
   </div>
 
-  {/* <div className="admin_sub">
+  <div className="admin_sub">
     <div className="d-flex flex-column text-start">
       <Link to="/myaccount" className="p-3 border-bottom text-black text-decoration-none">
         My Account
@@ -76,7 +76,7 @@ const Adminheader = ({ onSearchChange }) => {
         Log out
       </div>
     </div>
-  </div>*/}
+  </div>
 </div> 
 
       </Col>

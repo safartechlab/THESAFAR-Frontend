@@ -90,3 +90,25 @@
 .sidebar-text-color{
   color: var(--bgcolor);
 }
+
+.admin {
+  position: relative;
+}
+
+.admin_sub {
+  position: absolute;
+  right: 3%;
+  top: 100%; /* adjust if needed */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s, visibility 0.5s;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  width: max-content;
+  background-color: white;
+  z-index: 100;
+}
+
+.admin:hover .admin_sub {
+  opacity: 1;
+  visibility: visible;
+}

@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import { Baseurl } from "../../../baseurl";
 import { showToast } from "../../../store/slice/toast_slice";
 import CreateProduct from "./createProduct";
+import { getproduct } from "../../../store/slice/productSlice";
 
 const Addproduct = () => {
   const [imgprev, setimgprev] = useState([]);
@@ -115,6 +116,7 @@ const Addproduct = () => {
       dispatch(showToast({ message: res.data.message, type: "success" }));
       resetForm();
       setimgprev([]);
+      dispatch(getproduct())
       setselectedfile([]);
     } else {
       dispatch(showToast({ message: res.data.message, type: "error" }));

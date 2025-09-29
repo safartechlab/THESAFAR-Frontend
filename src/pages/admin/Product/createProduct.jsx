@@ -144,11 +144,7 @@ const CreateProduct = ({
                       </Col>
                     </Row>
                   ))}
-                  <Button
-                    variant="success"
-                    type="button"
-                    onClick={() => push({ size: "", price: "", stock: "" })}
-                  >
+                  <Button variant="success" type="button" onClick={() => push({ size: "", price: "", stock: "" })} className="w-25">
                     + Add Size
                   </Button>
                 </>
@@ -214,7 +210,7 @@ const CreateProduct = ({
           <Row>
             <Col className="text-center">
               <Button type="submit" variant="primary">
-                Create Product
+                Add Product
               </Button>
             </Col>
           </Row>
