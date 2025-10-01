@@ -1,3 +1,7 @@
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+
+
 .category-tags {
   display: flex;
   flex-wrap: nowrap; /* Keep items in a single line */
@@ -46,3 +50,7 @@
   height: 30px;
   align-self: center;
 }
+
+
+
+
