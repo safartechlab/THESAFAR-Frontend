@@ -4,7 +4,7 @@ import { getcategory } from "../../store/slice/category_slice";
 import { getsubcate } from "../../store/slice/Subcategoryslice";
 import "../../safar_css/user.css";
 
-const Categoryslider = () => {
+const CategorySlider = () => {
   const dispatch = useDispatch();
   const categories = useSelector((state) => state.category.categorylist);
   const subcategories = useSelector(
@@ -18,34 +18,52 @@ const Categoryslider = () => {
     dispatch(getsubcate());
   }, [dispatch]);
 
+  // Group subcategories by a property (like age group / type)
+  const getGroupedSubcategories = (catId) => {
+    const subs = subcategories.filter((subc) => subc.categoryID === catId);
+    const grouped = {};
+    subs.forEach((sub) => {
+      if (!grouped[sub.group]) grouped[sub.group] = [];
+      grouped[sub.group].push(sub.subcategory);
+    });
+    return grouped;
+  };
+
   return (
-    <>
-      <div className="container-fluid category-tags d-flex flex-nowrap overflow-auto">
+    <div className="category-menu-container">
+      <div className="d-flex category-bar">
         {categories.map((cat) => (
-          <span
-            className="category mx-2"
+          <div
             key={cat._id}
+            className="category-item mx-2"
             onMouseEnter={() => setHoveredCategory(cat._id)}
             onMouseLeave={() => setHoveredCategory(null)}
           >
             {cat.categoryname}
-          </span>
+
+            {hoveredCategory === cat._id && (
+              <div className="subcategory-dropdown p-3 shadow">
+                <div className="d-flex">
+                  {Object.entries(getGroupedSubcategories(cat._id)).map(
+                    ([groupName, subs]) => (
+                      <div className="me-4" key={groupName}>
+                        {/* <h6 className="fw-bold">{groupName}</h6> */}
+                        {subs.map((sub) => (
+                          <div key={sub} className="subcategory-item">
+                            {sub}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         ))}
       </div>
-
-      {hoveredCategory && (
-        <div className="container-fluid subcategory-container">
-          {subcategories
-            .filter((subc) => subc.categoryID === hoveredCategory) 
-            .map((subc) => (
-              <span className="subcategory mx-2" key={subc._id}>
-                {subc.subcategory}
-              </span>
-            ))}
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 
-export default Categoryslider;
+export default CategorySlider;

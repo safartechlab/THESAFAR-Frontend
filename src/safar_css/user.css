@@ -50,6 +50,34 @@
   height: 30px;
   align-self: center;
 }
+.category-menu-container {
+  position: relative; /* ensure dropdowns are positioned relative to this container */
+  z-index: 10; /* adjust if needed to stay above banners */
+}
+
+.category-item {
+  position: relative; /* make dropdowns relative to each category item */
+}
+
+.subcategory-dropdown {
+  position: absolute; /* float over other content */
+  top: 100%; /* directly below the category item */
+  left: 0;
+  background-color: #fff;
+  z-index: 1000; /* ensure it's above banners or other elements */
+  border-radius: 4px;
+  min-width: 200px; /* adjust as needed */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.subcategory-item {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.subcategory-item:hover {
+  background-color: #f0f0f0;
+}
 
 
 

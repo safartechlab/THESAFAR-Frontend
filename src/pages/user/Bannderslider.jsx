@@ -42,35 +42,11 @@ const BootstrapCarousel = () => {
               src={slide.bannerimage[0]?.filepath}
               className="d-block w-100"
               alt={slide.title || "slide"}
-              style={{ height: "auto", maxWidth: "100%", objectFit: "cover" }}
+              style={{ height: "500px", maxWidth: "100%", objectFit: "fit" }}
             />
           </div>
         ))}
       </div>
-
-      <button
-        className="carousel-control-prev"
-        type="button"
-        onClick={() =>
-          setCurrentIndex(
-            currentIndex === 0 ? slides.length - 1 : currentIndex - 1
-          )
-        }
-      >
-        <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span className="visually-hidden">Previous</span>
-      </button>
-
-      <button
-        className="carousel-control-next"
-        type="button"
-        onClick={() =>
-          setCurrentIndex((currentIndex + 1) % slides.length)
-        }
-      >
-        <span className="carousel-control-next-icon" aria-hidden="true"></span>
-        <span className="visually-hidden">Next</span>
-      </button>
     </div>
   );
 };

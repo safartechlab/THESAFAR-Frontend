@@ -21,6 +21,7 @@ const AdminRoutes =() =>{
                     <Route path="/admin/Addsize" element={<Addsize/>} />
                     <Route path="/admin/Order" element={<Order/>} />
                     <Route path="/admin/Banner" element={<Addbanner/>}/>
+                    {/* <Route path="/admin/Updateproduct" element={<UpdateProduct/>}/> */}
                 </Route>
             </Routes>
         </>
