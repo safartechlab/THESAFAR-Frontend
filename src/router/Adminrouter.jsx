@@ -7,6 +7,7 @@ import Addcategory from "../pages/admin/category/Addcategory"
 import Addsubcategory from "../pages/admin/Subcategory/Addsubcategory"
 import Addsize from "../pages/admin/size/Addsize"
 import Order from "../pages/admin/Order"
+import UpdateProduct from "../pages/admin/Product/updateproduct"
 const AdminRoutes =() =>{
     return(
         <>
@@ -19,6 +20,7 @@ const AdminRoutes =() =>{
                     <Route path="/admin/Addsubcategory" element={<Addsubcategory/>} />
                     <Route path="/admin/Addsize" element={<Addsize/>} />
                     <Route path="/admin/Order" element={<Order/>} />
+                    <Route path="/admin/Updateproduct" element={<UpdateProduct/>}/>
                 </Route>
             </Routes>
         </>
