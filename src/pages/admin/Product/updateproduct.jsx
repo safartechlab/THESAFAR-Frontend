@@ -33,16 +33,18 @@ const UpdateProduct = () => {
     sizes: [],
   });
 
-  const [images, setImages] = useState([]); // new images
-  const [preview, setPreview] = useState([]); // preview for all images
-  const [removedExistingImages, setRemovedExistingImages] = useState([]); // existing images to remove
+  const [newImages, setNewImages] = useState([]);
+  const [preview, setPreview] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
 
+  // Fetch categories, subcategories, sizes
   useEffect(() => {
     dispatch(getcategory());
     dispatch(getsubcate());
     dispatch(getsize());
   }, [dispatch]);
 
+  // Populate product data
   useEffect(() => {
     if (productup) {
       setProduct({
@@ -58,12 +60,12 @@ const UpdateProduct = () => {
         discountType: productup.discountType || "Percentage",
         sizes:
           productup.sizes?.map((s) => ({
-            size: s.size && typeof s.size === "object" ? s.size._id : s.size,
+            size: s.size?._id || s.size,
             price: s.price,
             stock: s.stock,
           })) || [],
       });
-      setPreview(productup.images?.map((img) => img.filepath) || []); // existing images in preview
+      setPreview(productup.images?.map((img) => img.filepath) || []);
     }
   }, [productup]);
 
@@ -72,90 +74,62 @@ const UpdateProduct = () => {
     setProduct({ ...product, [name]: value });
   };
 
+  // Image handling
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages([...images, ...files]);
+    setNewImages([...newImages, ...files]);
     setPreview([...preview, ...files.map((f) => URL.createObjectURL(f))]);
   };
 
   const removeImage = (index) => {
-    const isNewImage = index >= preview.length - images.length;
-
-    if (isNewImage) {
-      const imgIndex = index - (preview.length - images.length);
-      setImages(images.filter((_, i) => i !== imgIndex));
+    const isNew = index >= preview.length - newImages.length;
+    if (isNew) {
+      const imgIndex = index - (preview.length - newImages.length);
+      setNewImages(newImages.filter((_, i) => i !== imgIndex));
     } else {
-      // existing image removed
-      setRemovedExistingImages([
-        ...removedExistingImages,
-        preview[index],
-      ]);
+      setRemovedImages([...removedImages, preview[index]]);
     }
-
     setPreview(preview.filter((_, i) => i !== index));
   };
 
-  const handleSizeChange = (index, field, value) => {
+  // Sizes handling
+  const handleSizeChange = (idx, field, value) => {
     const newSizes = [...product.sizes];
-    newSizes[index][field] = value;
+    newSizes[idx][field] = value;
     setProduct({ ...product, sizes: newSizes });
   };
 
-  const addSize = () => {
+  const addSize = () =>
     setProduct({
       ...product,
       sizes: [...product.sizes, { size: "", price: "", stock: "" }],
     });
-  };
 
-  const removeSize = (index) => {
-    const newSizes = product.sizes.filter((_, i) => i !== index);
-    setProduct({ ...product, sizes: newSizes });
-  };
+  const removeSize = (idx) =>
+    setProduct({ ...product, sizes: product.sizes.filter((_, i) => i !== idx) });
 
+  // Update API call
   const updateProduct = async () => {
     try {
       const formData = new FormData();
+      Object.entries(product).forEach(([key, value]) => {
+        if (key === "sizes") formData.append("sizes", JSON.stringify(value));
+        else formData.append(key, value);
+      });
 
-      formData.append("productName", product.productName);
-      formData.append("description", product.description);
-      formData.append("gender", product.gender);
-      formData.append("category", product.category);
-      formData.append("subcategory", product.subcategory);
-      formData.append("price", product.price);
-      formData.append("stock", product.stock);
-      formData.append("discount", product.discount);
-      formData.append("discountType", product.discountType);
-      formData.append("sizes", JSON.stringify(product.sizes));
-
-      // send removed existing images to backend
-      if (removedExistingImages.length > 0) {
-        formData.append("removedImages", JSON.stringify(removedExistingImages));
-      }
-
-      // send only new images
-      images.forEach((file) => formData.append("images", file));
+      if (removedImages.length) formData.append("removedImages", JSON.stringify(removedImages));
+      newImages.forEach((file) => formData.append("images", file));
 
       const config = { headers: { "Content-Type": "multipart/form-data" } };
-
-      const res = await axios.put(
-        `${Baseurl}product/updateproduct/${product.id}`,
-        formData,
-        config
-      );
+      const res = await axios.put(`${Baseurl}product/updateproduct/${product.id}`, formData, config);
 
       dispatch(showToast({ message: res.data.message, type: "success" }));
       dispatch(getproduct());
       dispatch(colsseupdate());
       navigate("/admin/Getproduct");
     } catch (err) {
-      console.log(err);
-      dispatch(
-        showToast({
-          message: err?.response?.data?.message || "Update failed",
-          type: "error",
-        })
-      );
+      console.error(err);
+      dispatch(showToast({ message: err?.response?.data?.message || "Update failed", type: "error" }));
     }
   };
 
@@ -164,16 +138,11 @@ const UpdateProduct = () => {
       <Card className="p-4 shadow-sm">
         <h3 className="mb-4">Update Product</h3>
         <Form>
-          {/* Product Fields */}
+          {/* Product Name & Gender */}
           <Row className="mb-3">
             <Col md={6}>
               <Form.Label>Product Name</Form.Label>
-              <Form.Control
-                type="text"
-                name="productName"
-                value={product.productName}
-                onChange={handleChange}
-              />
+              <Form.Control type="text" name="productName" value={product.productName} onChange={handleChange} />
             </Col>
             <Col md={6}>
               <Form.Label>Gender</Form.Label>
@@ -189,25 +158,18 @@ const UpdateProduct = () => {
           <Row className="mb-3">
             <Col>
               <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="description"
-                value={product.description}
-                onChange={handleChange}
-              />
+              <Form.Control as="textarea" name="description" value={product.description} onChange={handleChange} />
             </Col>
           </Row>
 
-          {/* Category/Subcategory */}
+          {/* Category & Subcategory */}
           <Row className="mb-3">
             <Col md={6}>
               <Form.Label>Category</Form.Label>
               <Form.Select name="category" value={product.category} onChange={handleChange}>
                 <option value="">Select category</option>
                 {category.map((cat) => (
-                  <option key={cat._id} value={cat._id}>
-                    {cat.categoryname}
-                  </option>
+                  <option key={cat._id} value={cat._id}>{cat.categoryname}</option>
                 ))}
               </Form.Select>
             </Col>
@@ -215,83 +177,44 @@ const UpdateProduct = () => {
               <Form.Label>Subcategory</Form.Label>
               <Form.Select name="subcategory" value={product.subcategory} onChange={handleChange}>
                 <option value="">Select subcategory</option>
-                {subcategory
-                  ?.filter((sub) => sub.categoryID === product.category)
-                  .map((sub) => (
-                    <option key={sub._id} value={sub._id}>
-                      {sub.subcategory}
-                    </option>
-                  ))}
+                {subcategory.filter((sub) => sub.categoryID === product.category).map((sub) => (
+                  <option key={sub._id} value={sub._id}>{sub.subcategory}</option>
+                ))}
               </Form.Select>
             </Col>
           </Row>
 
           {/* Sizes */}
-          <div className="mb-3">
-            <h5>Sizes</h5>
-            {product.sizes.map((s, idx) => (
-              <Row key={idx} className="mb-2 align-items-center">
-                <Col md={3}>
-                  <Form.Select
-                    value={s.size}
-                    onChange={(e) => handleSizeChange(idx, "size", e.target.value)}
-                  >
-                    <option value="">Select size</option>
-                    {sizeList.map((sz) => (
-                      <option key={sz._id} value={sz._id}>
-                        {sz.size}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Col>
-                <Col md={3}>
-                  <Form.Control
-                    type="number"
-                    placeholder="Price"
-                    value={s.price}
-                    onChange={(e) => handleSizeChange(idx, "price", e.target.value)}
-                  />
-                </Col>
-                <Col md={3}>
-                  <Form.Control
-                    type="number"
-                    placeholder="Stock"
-                    value={s.stock}
-                    onChange={(e) => handleSizeChange(idx, "stock", e.target.value)}
-                  />
-                </Col>
-                <Col md={3}>
-                  <Button variant="danger" onClick={() => removeSize(idx)}>
-                    Remove
-                  </Button>
-                </Col>
-              </Row>
-            ))}
-            <Button variant="secondary" onClick={addSize}>
-              + Add Size
-            </Button>
-          </div>
+          {product.sizes.length > 0 && (
+            <div className="mb-3">
+              <h5>Sizes</h5>
+              {product.sizes.map((s, idx) => (
+                <Row key={idx} className="mb-2 align-items-center">
+                  <Col md={3}>
+                    <Form.Select value={s.size} onChange={(e) => handleSizeChange(idx, "size", e.target.value)}>
+                      <option value="">Select size</option>
+                      {sizeList.map((sz) => (<option key={sz._id} value={sz._id}>{sz.size}</option>))}
+                    </Form.Select>
+                  </Col>
+                  <Col md={3}><Form.Control type="number" placeholder="Price" value={s.price} onChange={(e) => handleSizeChange(idx, "price", e.target.value)} /></Col>
+                  <Col md={3}><Form.Control type="number" placeholder="Stock" value={s.stock} onChange={(e) => handleSizeChange(idx, "stock", e.target.value)} /></Col>
+                  <Col md={3}><Button variant="danger" onClick={() => removeSize(idx)}>Remove</Button></Col>
+                </Row>
+              ))}
+              <Button variant="secondary" onClick={addSize}>+ Add Size</Button>
+            </div>
+          )}
 
           {/* Price & Stock fallback */}
           {!product.sizes.length && (
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Label>Price</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="price"
-                  value={product.price}
-                  onChange={handleChange}
-                />
+                <Form.Control type="number" name="price" value={product.price} onChange={handleChange} />
               </Col>
               <Col md={6}>
                 <Form.Label>Stock</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="stock"
-                  value={product.stock}
-                  onChange={handleChange}
-                />
+                <Form.Control type="number" name="stock" value={product.stock} onChange={handleChange} />
               </Col>
             </Row>
           )}
@@ -300,20 +223,11 @@ const UpdateProduct = () => {
           <Row className="mb-3">
             <Col md={6}>
               <Form.Label>Discount</Form.Label>
-              <Form.Control
-                type="number"
-                name="discount"
-                value={product.discount}
-                onChange={handleChange}
-              />
+              <Form.Control type="number" name="discount" value={product.discount} onChange={handleChange} />
             </Col>
             <Col md={6}>
               <Form.Label>Discount Type</Form.Label>
-              <Form.Select
-                name="discountType"
-                value={product.discountType}
-                onChange={handleChange}
-              >
+              <Form.Select name="discountType" value={product.discountType} onChange={handleChange}>
                 <option value="Percentage">Percentage</option>
                 <option value="Flat">Flat</option>
               </Form.Select>
@@ -323,48 +237,23 @@ const UpdateProduct = () => {
           {/* Images */}
           <Form.Group className="mb-3">
             <Form.Label>Upload Images</Form.Label>
-            <Form.Control
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageChange}
-            />
+            <Form.Control type="file" multiple accept="image/*" onChange={handleImageChange} />
             {preview.length > 0 && (
-              <div className="mt-3">
-                <h6>Preview Images:</h6>
-                <div className="d-flex flex-wrap gap-3">
-                  {preview.map((src, i) => (
-                    <div key={i} style={{ position: "relative" }}>
-                      <img src={src} alt="preview" style={{ width: "120px", borderRadius: "6px" }} />
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        style={{
-                          position: "absolute",
-                          top: "5px",
-                          right: "5px",
-                          borderRadius: "50%",
-                          padding: "2px 6px",
-                        }}
-                        onClick={() => removeImage(i)}
-                      >
-                        ✕
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-3 d-flex flex-wrap gap-3">
+                {preview.map((src, i) => (
+                  <div key={i} style={{ position: "relative" }}>
+                    <img src={src} alt="preview" style={{ width: "120px", borderRadius: "6px" }} />
+                    <Button variant="danger" size="sm" style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "50%", padding: "2px 6px" }} onClick={() => removeImage(i)}>✕</Button>
+                  </div>
+                ))}
               </div>
             )}
           </Form.Group>
 
           {/* Actions */}
           <div className="d-flex gap-2 mt-3">
-            <Button variant="secondary" onClick={() => navigate("/admin/Getproduct")}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={updateProduct}>
-              Update Product
-            </Button>
+            <Button variant="secondary" onClick={() => navigate("/admin/Getproduct")}>Cancel</Button>
+            <Button variant="primary" onClick={updateProduct}>Update Product</Button>
           </div>
         </Form>
       </Card>

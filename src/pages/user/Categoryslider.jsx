@@ -30,7 +30,7 @@ const CategorySlider = () => {
   };
 
   return (
-    <div className="category-menu-container">
+    <div className="category-menu-container mt-2">
       <div className="d-flex category-bar">
         {categories.map((cat) => (
           <div

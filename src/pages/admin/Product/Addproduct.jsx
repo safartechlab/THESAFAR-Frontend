@@ -9,12 +9,12 @@ import CreateProduct from "./createProduct";
 import { getproduct } from "../../../store/slice/productSlice";
 
 const Addproduct = () => {
-  const [imgprev, setimgprev] = useState([]);
-  const [selectedfile, setselectedfile] = useState([]);
-  const [hassize, sethassize] = useState(false);
+  const [imgprev, setImgPrev] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [hassize, setHasSize] = useState(false);
   const dispatch = useDispatch();
 
-  // ✅ Yup with number transforms
+  // ✅ Yup validation
   const ProductSchema = Yup.object().shape({
     productName: Yup.string().required("Product name is required"),
     gender: Yup.string()
@@ -72,69 +72,73 @@ const Addproduct = () => {
     discountType: "",
   };
 
-  const handleimg = (e) => {
+  // ✅ Handle image previews
+  const handleImg = (e) => {
     const files = Array.from(e.target.files);
-
     const previews = files.map(
       (file) =>
         new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onloadend = () => resolve({ src: reader.result, name: file.name });
+          reader.onloadend = () =>
+            resolve({ src: reader.result, name: file.name });
           reader.onerror = () => reject("Failed to read file");
           reader.readAsDataURL(file);
         })
     );
 
     Promise.all(previews).then((images) => {
-      setimgprev(images);
-      setselectedfile(files);
+      setImgPrev(images);
+      setSelectedFiles(files);
     });
   };
 
- const handlesumit = async (values, { resetForm }) => {
-  try {
-    console.log("Submitting values:", values);
+  // ✅ Submit product
+  const handleSubmit = async (values, { resetForm }) => {
+    try {
+      const formData = new FormData();
 
-    const allFromData = new FormData();
+      Object.entries(values).forEach(([key, value]) => {
+        if (key === "sizes") {
+          formData.append("sizes", JSON.stringify(value)); // stringify sizes array
+        } else if (value !== "" && value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      });
 
-    Object.entries(values).forEach(([key, value]) => {
-      if (key === "sizes") {
-        allFromData.append("sizes", JSON.stringify(value)); // ✅ stringify sizes
-      } else if (value !== "" && value !== null && value !== undefined) {
-        allFromData.append(key, value);
+      selectedFiles.forEach((file) => {
+        formData.append("images", file); // append images
+      });
+
+      const config = { headers: { "Content-Type": "multipart/form-data" } };
+      const res = await axios.post(`${Baseurl}product/addproduct`, formData, config);
+
+      if (res.status === 201) {
+        dispatch(showToast({ message: res.data.message, type: "success" }));
+        resetForm();
+        setImgPrev([]);
+        setSelectedFiles([]);
+        setHasSize(false);
+        dispatch(getproduct());
+      } else {
+        dispatch(showToast({ message: res.data.message, type: "error" }));
       }
-    });
-
-    selectedfile.forEach((file) => {
-      allFromData.append("images", file);
-    });
-
-    const config = { headers: { "Content-Type": "multipart/form-data" } };
-    const res = await axios.post(`${Baseurl}product/addproduct`, allFromData, config);
-
-    if (res.status) {
-      dispatch(showToast({ message: res.data.message, type: "success" }));
-      resetForm();
-      setimgprev([]);
-      dispatch(getproduct())
-      setselectedfile([]);
-    } else {
-      dispatch(showToast({ message: res.data.message, type: "error" }));
+    } catch (error) {
+      dispatch(
+        showToast({
+          message: error?.response?.data?.message || "Something went wrong",
+          type: "error",
+        })
+      );
     }
-  } catch (error) {
-    console.log(error);
-    dispatch(
-      showToast({
-        message: error?.response?.data?.message || "Something went wrong",
-        type: "error",
-      })
-    );
-  }
-};
+  };
 
   return (
-    <Formik initialValues={initialValues} validationSchema={ProductSchema} onSubmit={handlesumit}>
-      {({ values, errors, touched, handleChange, handleSubmit, setFieldValue }) => (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={ProductSchema}
+      onSubmit={handleSubmit}
+    >
+      {({ values, errors, touched, handleChange, setFieldValue, handleSubmit }) => (
         <Form onSubmit={handleSubmit}>
           <CreateProduct
             values={values}
@@ -143,9 +147,9 @@ const Addproduct = () => {
             handleChange={handleChange}
             setFieldValue={setFieldValue}
             imgprev={imgprev}
-            handleimg={handleimg}
+            handleimg={handleImg}
             hassize={hassize}
-            sethassize={sethassize}
+            sethassize={setHasSize}
           />
         </Form>
       )}
