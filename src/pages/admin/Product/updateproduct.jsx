@@ -13,11 +13,9 @@ import { getsize } from "../../../store/slice/Sizeslice";
 const UpdateProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const productup = useSelector((state) => state.product.productupdate);
   const category = useSelector((state) => state.category.categorylist);
   const subcategory = useSelector((state) => state.subcategory.subcategorylist);
-  const sizeList = useSelector((state) => state.size.sizelist);
 
   const [product, setProduct] = useState({
     id: "",
@@ -58,7 +56,7 @@ const UpdateProduct = () => {
         discountType: productup.discountType || "Percentage",
         sizes:
           productup.sizes?.map((s) => ({
-            size: typeof s.size === "object" ? s.size._id : s.size,
+            size:s.size && typeof s.size === "object" ? s.size._id : s.size,
             price: s.price,
             stock: s.stock,
           })) || [],
@@ -116,7 +114,6 @@ const UpdateProduct = () => {
   const updateProduct = async () => {
     try {
       const formData = new FormData();
-
       formData.append("productName", product.productName);
       formData.append("description", product.description);
       formData.append("gender", product.gender);
@@ -127,12 +124,10 @@ const UpdateProduct = () => {
       formData.append("discount", product.discount);
       formData.append("discountType", product.discountType);
       formData.append("sizes", JSON.stringify(product.sizes));
-
       // send removed existing images to backend
       if (removedExistingImages.length > 0) {
         formData.append("removedImages", JSON.stringify(removedExistingImages));
       }
-
       // send only new images
       images.forEach((file) => formData.append("images", file));
 
@@ -143,7 +138,6 @@ const UpdateProduct = () => {
         formData,
         config
       );
-
       dispatch(showToast({ message: res.data.message, type: "success" }));
       dispatch(getproduct());
       dispatch(colsseupdate());
@@ -168,12 +162,7 @@ const UpdateProduct = () => {
           <Row className="mb-3">
             <Col md={6}>
               <Form.Label>Product Name</Form.Label>
-              <Form.Control
-                type="text"
-                name="productName"
-                value={product.productName}
-                onChange={handleChange}
-              />
+              <Form.Control type="text" name="productName" value={product.productName} onChange={handleChange}/>
             </Col>
             <Col md={6}>
               <Form.Label>Gender</Form.Label>
@@ -189,15 +178,9 @@ const UpdateProduct = () => {
           <Row className="mb-3">
             <Col>
               <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="description"
-                value={product.description}
-                onChange={handleChange}
-              />
+              <Form.Control as="textarea" name="description" value={product.description} onChange={handleChange} />
             </Col>
           </Row>
-
           {/* Category/Subcategory */}
           <Row className="mb-3">
             <Col md={6}>
@@ -225,19 +208,15 @@ const UpdateProduct = () => {
               </Form.Select>
             </Col>
           </Row>
-
           {/* Sizes */}
           <div className="mb-3">
             <h5>Sizes</h5>
             {product.sizes.map((s, idx) => (
               <Row key={idx} className="mb-2 align-items-center">
                 <Col md={3}>
-                  <Form.Select
-                    value={s.size}
-                    onChange={(e) => handleSizeChange(idx, "size", e.target.value)}
-                  >
+                  <Form.Select value={s.size} onChange={(e) => handleSizeChange(idx, "size", e.target.value)}>
                     <option value="">Select size</option>
-                    {sizeList.map((sz) => (
+                    {subcategory?.find((sub) => sub._id === product.subcategory)?.sizes?.map((sz) => (
                       <option key={sz._id} value={sz._id}>
                         {sz.size}
                       </option>
@@ -245,19 +224,10 @@ const UpdateProduct = () => {
                   </Form.Select>
                 </Col>
                 <Col md={3}>
-                  <Form.Control
-                    type="number"
-                    placeholder="Price"
-                    value={s.price}
-                    onChange={(e) => handleSizeChange(idx, "price", e.target.value)}
-                  />
+                  <Form.Control type="number" placeholder="Price" value={s.price} onChange={(e) => handleSizeChange(idx, "price", e.target.value)}/>
                 </Col>
                 <Col md={3}>
-                  <Form.Control
-                    type="number"
-                    placeholder="Stock"
-                    value={s.stock}
-                    onChange={(e) => handleSizeChange(idx, "stock", e.target.value)}
+                  <Form.Control type="number" placeholder="Stock" value={s.stock} onChange={(e) => handleSizeChange(idx, "stock", e.target.value)}
                   />
                 </Col>
                 <Col md={3}>
@@ -277,21 +247,11 @@ const UpdateProduct = () => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Label>Price</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="price"
-                  value={product.price}
-                  onChange={handleChange}
-                />
+                <Form.Control type="number" name="price" value={product.price} onChange={handleChange} />
               </Col>
               <Col md={6}>
                 <Form.Label>Stock</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="stock"
-                  value={product.stock}
-                  onChange={handleChange}
-                />
+                <Form.Control type="number" name="stock" value={product.stock} onChange={handleChange}/>
               </Col>
             </Row>
           )}
@@ -300,20 +260,11 @@ const UpdateProduct = () => {
           <Row className="mb-3">
             <Col md={6}>
               <Form.Label>Discount</Form.Label>
-              <Form.Control
-                type="number"
-                name="discount"
-                value={product.discount}
-                onChange={handleChange}
-              />
+              <Form.Control type="number" name="discount" value={product.discount} onChange={handleChange}/>
             </Col>
             <Col md={6}>
               <Form.Label>Discount Type</Form.Label>
-              <Form.Select
-                name="discountType"
-                value={product.discountType}
-                onChange={handleChange}
-              >
+              <Form.Select name="discountType" value={product.discountType} onChange={handleChange}> 
                 <option value="Percentage">Percentage</option>
                 <option value="Flat">Flat</option>
               </Form.Select>
@@ -323,12 +274,7 @@ const UpdateProduct = () => {
           {/* Images */}
           <Form.Group className="mb-3">
             <Form.Label>Upload Images</Form.Label>
-            <Form.Control
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageChange}
-            />
+            <Form.Control type="file" multiple accept="image/*" onChange={handleImageChange} />
             {preview.length > 0 && (
               <div className="mt-3">
                 <h6>Preview Images:</h6>
@@ -336,27 +282,13 @@ const UpdateProduct = () => {
                   {preview.map((src, i) => (
                     <div key={i} style={{ position: "relative" }}>
                       <img src={src} alt="preview" style={{ width: "120px", borderRadius: "6px" }} />
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        style={{
-                          position: "absolute",
-                          top: "5px",
-                          right: "5px",
-                          borderRadius: "50%",
-                          padding: "2px 6px",
-                        }}
-                        onClick={() => removeImage(i)}
-                      >
-                        ✕
-                      </Button>
+                      <Button variant="danger" size="sm" style={{position: "absolute",top: "5px",right: "5px",borderRadius: "50%",padding: "2px 6px",}}onClick={() => removeImage(i)}>✕</Button>
                     </div>
                   ))}
                 </div>
               </div>
             )}
           </Form.Group>
-
           {/* Actions */}
           <div className="d-flex gap-2 mt-3">
             <Button variant="secondary" onClick={() => navigate("/admin/Getproduct")}>
@@ -371,5 +303,4 @@ const UpdateProduct = () => {
     </Container>
   );
 };
-
 export default UpdateProduct;
