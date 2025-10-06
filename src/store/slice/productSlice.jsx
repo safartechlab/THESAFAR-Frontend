@@ -5,16 +5,30 @@ import { Baseurl } from "../../baseurl";
 const ProductSlice = createSlice({
     name:'product',
     initialState:{
-        productlist:[] 
+        productlist:[],
+        productupdate:null, 
+        productdelete :null
     },
     reducers:{
         setproduct:(state,action)=>{
             state.productlist=action.payload
         },
+        setproupdate:(state,actions)=>{
+            state.productupdate = actions.payload
+        },
+        colsseupdate:(state)=>{
+            state.productupdate = null
+        },
+        setprodelete:(state,actions) =>{
+            state.productdelete = actions.payload
+        },
+        closeprodelete:(state) =>{
+            state.productdelete = null
+        }
     }
 })
 
-export const {setproduct} = ProductSlice.actions
+export const {setproduct , setproupdate , colsseupdate , setprodelete , closeprodelete} = ProductSlice.actions
 export default ProductSlice.reducer
 
 export const getproduct = () => async(dispatch)=>{

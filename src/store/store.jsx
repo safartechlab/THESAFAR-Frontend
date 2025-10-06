@@ -5,6 +5,7 @@ import adminReducer from './slice/Adminmainslice'
 import categoryReducer from './slice/category_slice'
 import subcategoryReducer from './slice/Subcategoryslice'
 import sizeReducer from './slice/Sizeslice'
+import productReducer from './slice/productSlice'
 const store = configureStore({
     reducer:{
         toast:toastReducer,
@@ -12,7 +13,8 @@ const store = configureStore({
         sidebar:adminReducer,
         category:categoryReducer,
         subcategory:subcategoryReducer,  
-        size:sizeReducer
+        size:sizeReducer,
+        product:productReducer
     }
 })
 
