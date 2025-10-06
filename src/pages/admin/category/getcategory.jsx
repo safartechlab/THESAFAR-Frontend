@@ -4,7 +4,6 @@ import { Row, Col } from "react-bootstrap";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBinFill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
-// import { fetchdata, modalopco, setmodalcategory } from "../store/slice/Adminslice";
 import Updatecategory from './Updatecategory';
 import Deletecategory from "./deletecategory";
 import { getcategory, setcategorydelete, setcategoryupdate } from "../../../store/slice/category_slice";
@@ -18,8 +17,7 @@ const Getcategory = () => {
   }, [dispatch]);
   return (
     <>
-      <Row className="text-start border-bottom fw-bold p-2 m-0"
-           style={{}}>
+      <Row className="text-start border-bottom fw-bold p-2 m-0">
         <Col>Sr.No</Col>
         <Col>Category Image</Col>
         <Col>Category Name</Col>
@@ -27,11 +25,11 @@ const Getcategory = () => {
         <Col className="text-center">Delete</Col>
       </Row>
 
-      {getdata.map((category, i) => (
+      {getdata?.map((category, i) => (
         <Row key={i} className="text-start border-bottom sidebar-color fw-bold p-2 m-0 align-items-center" style={{ color: '#e4e4e4' }}>
             <Col >{i + 1}</Col>
             <Col>
-  {category?.categoryimage?.filepath && (
+      {category?.categoryimage?.filepath && (
     <img
       src={`${category.categoryimage.filepath}`}
       alt={category.categoryname}

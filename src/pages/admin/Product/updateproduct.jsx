@@ -13,11 +13,9 @@ import { getsize } from "../../../store/slice/Sizeslice";
 const UpdateProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const productup = useSelector((state) => state.product.productupdate);
   const category = useSelector((state) => state.category.categorylist);
   const subcategory = useSelector((state) => state.subcategory.subcategorylist);
-  const sizeList = useSelector((state) => state.size.sizelist);
 
   const [product, setProduct] = useState({
     id: "",
@@ -60,7 +58,11 @@ const UpdateProduct = () => {
         discountType: productup.discountType || "Percentage",
         sizes:
           productup.sizes?.map((s) => ({
+<<<<<<< HEAD
             size: s.size?._id || s.size,
+=======
+            size: typeof s.size === "object" ? s.size._id : s.size,
+>>>>>>> e835c3cbbff57aced433c81413d98463f2d7a558
             price: s.price,
             stock: s.stock,
           })) || [],
@@ -112,6 +114,7 @@ const UpdateProduct = () => {
   const updateProduct = async () => {
     try {
       const formData = new FormData();
+<<<<<<< HEAD
       Object.entries(product).forEach(([key, value]) => {
         if (key === "sizes") formData.append("sizes", JSON.stringify(value));
         else formData.append(key, value);
@@ -123,6 +126,32 @@ const UpdateProduct = () => {
       const config = { headers: { "Content-Type": "multipart/form-data" } };
       const res = await axios.put(`${Baseurl}product/updateproduct/${product.id}`, formData, config);
 
+=======
+      formData.append("productName", product.productName);
+      formData.append("description", product.description);
+      formData.append("gender", product.gender);
+      formData.append("category", product.category);
+      formData.append("subcategory", product.subcategory);
+      formData.append("price", product.price);
+      formData.append("stock", product.stock);
+      formData.append("discount", product.discount);
+      formData.append("discountType", product.discountType);
+      formData.append("sizes", JSON.stringify(product.sizes));
+      // send removed existing images to backend
+      if (removedExistingImages.length > 0) {
+        formData.append("removedImages", JSON.stringify(removedExistingImages));
+      }
+      // send only new images
+      images.forEach((file) => formData.append("images", file));
+
+      const config = { headers: { "Content-Type": "multipart/form-data" } };
+
+      const res = await axios.put(
+        `${Baseurl}product/updateproduct/${product.id}`,
+        formData,
+        config
+      );
+>>>>>>> e835c3cbbff57aced433c81413d98463f2d7a558
       dispatch(showToast({ message: res.data.message, type: "success" }));
       dispatch(getproduct());
       dispatch(colsseupdate());
@@ -142,7 +171,11 @@ const UpdateProduct = () => {
           <Row className="mb-3">
             <Col md={6}>
               <Form.Label>Product Name</Form.Label>
+<<<<<<< HEAD
               <Form.Control type="text" name="productName" value={product.productName} onChange={handleChange} />
+=======
+              <Form.Control type="text" name="productName" value={product.productName} onChange={handleChange}/>
+>>>>>>> e835c3cbbff57aced433c81413d98463f2d7a558
             </Col>
             <Col md={6}>
               <Form.Label>Gender</Form.Label>
@@ -161,8 +194,12 @@ const UpdateProduct = () => {
               <Form.Control as="textarea" name="description" value={product.description} onChange={handleChange} />
             </Col>
           </Row>
+<<<<<<< HEAD
 
           {/* Category & Subcategory */}
+=======
+          {/* Category/Subcategory */}
+>>>>>>> e835c3cbbff57aced433c81413d98463f2d7a558
           <Row className="mb-3">
             <Col md={6}>
               <Form.Label>Category</Form.Label>
@@ -183,8 +220,8 @@ const UpdateProduct = () => {
               </Form.Select>
             </Col>
           </Row>
-
           {/* Sizes */}
+<<<<<<< HEAD
           {product.sizes.length > 0 && (
             <div className="mb-3">
               <h5>Sizes</h5>
@@ -204,6 +241,40 @@ const UpdateProduct = () => {
               <Button variant="secondary" onClick={addSize}>+ Add Size</Button>
             </div>
           )}
+=======
+          <div className="mb-3">
+            <h5>Sizes</h5>
+            {product.sizes.map((s, idx) => (
+              <Row key={idx} className="mb-2 align-items-center">
+                <Col md={3}>
+                  <Form.Select value={s.size} onChange={(e) => handleSizeChange(idx, "size", e.target.value)}>
+                    <option value="">Select size</option>
+                    {subcategory?.find((sub) =>  sub._id === product.subcategory)?.sizes?.map((sz) => (
+                      <option key={sz._id} value={sz._id}>
+                        {sz.size}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Col>
+                <Col md={3}>
+                  <Form.Control type="number" placeholder="Price" value={s.price} onChange={(e) => handleSizeChange(idx, "price", e.target.value)}/>
+                </Col>
+                <Col md={3}>
+                  <Form.Control type="number" placeholder="Stock" value={s.stock} onChange={(e) => handleSizeChange(idx, "stock", e.target.value)}
+                  />
+                </Col>
+                <Col md={3}>
+                  <Button variant="danger" onClick={() => removeSize(idx)}>
+                    Remove
+                  </Button>
+                </Col>
+              </Row>
+            ))}
+            <Button variant="secondary" onClick={addSize}>
+              + Add Size
+            </Button>
+          </div>
+>>>>>>> e835c3cbbff57aced433c81413d98463f2d7a558
 
           {/* Price & Stock fallback */}
           {!product.sizes.length && (
@@ -214,7 +285,11 @@ const UpdateProduct = () => {
               </Col>
               <Col md={6}>
                 <Form.Label>Stock</Form.Label>
+<<<<<<< HEAD
                 <Form.Control type="number" name="stock" value={product.stock} onChange={handleChange} />
+=======
+                <Form.Control type="number" name="stock" value={product.stock} onChange={handleChange}/>
+>>>>>>> e835c3cbbff57aced433c81413d98463f2d7a558
               </Col>
             </Row>
           )}
@@ -223,11 +298,19 @@ const UpdateProduct = () => {
           <Row className="mb-3">
             <Col md={6}>
               <Form.Label>Discount</Form.Label>
+<<<<<<< HEAD
               <Form.Control type="number" name="discount" value={product.discount} onChange={handleChange} />
             </Col>
             <Col md={6}>
               <Form.Label>Discount Type</Form.Label>
               <Form.Select name="discountType" value={product.discountType} onChange={handleChange}>
+=======
+              <Form.Control type="number" name="discount" value={product.discount} onChange={handleChange}/>
+            </Col>
+            <Col md={6}>
+              <Form.Label>Discount Type</Form.Label>
+              <Form.Select name="discountType" value={product.discountType} onChange={handleChange}> 
+>>>>>>> e835c3cbbff57aced433c81413d98463f2d7a558
                 <option value="Percentage">Percentage</option>
                 <option value="Flat">Flat</option>
               </Form.Select>
@@ -239,6 +322,7 @@ const UpdateProduct = () => {
             <Form.Label>Upload Images</Form.Label>
             <Form.Control type="file" multiple accept="image/*" onChange={handleImageChange} />
             {preview.length > 0 && (
+<<<<<<< HEAD
               <div className="mt-3 d-flex flex-wrap gap-3">
                 {preview.map((src, i) => (
                   <div key={i} style={{ position: "relative" }}>
@@ -246,10 +330,21 @@ const UpdateProduct = () => {
                     <Button variant="danger" size="sm" style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "50%", padding: "2px 6px" }} onClick={() => removeImage(i)}>✕</Button>
                   </div>
                 ))}
+=======
+              <div className="mt-3">
+                <h6>Preview Images:</h6>
+                <div className="d-flex flex-wrap gap-3">
+                  {preview.map((src, i) => (
+                    <div key={i} style={{ position: "relative" }}>
+                      <img src={src} alt="preview" style={{ width: "120px", borderRadius: "6px" }} />
+                      <Button variant="danger" size="sm" style={{position: "absolute",top: "5px",right: "5px",borderRadius: "50%",padding: "2px 6px",}}onClick={() => removeImage(i)}>✕</Button>
+                    </div>
+                  ))}
+                </div>
+>>>>>>> e835c3cbbff57aced433c81413d98463f2d7a558
               </div>
             )}
           </Form.Group>
-
           {/* Actions */}
           <div className="d-flex gap-2 mt-3">
             <Button variant="secondary" onClick={() => navigate("/admin/Getproduct")}>Cancel</Button>
@@ -260,5 +355,4 @@ const UpdateProduct = () => {
     </Container>
   );
 };
-
 export default UpdateProduct;

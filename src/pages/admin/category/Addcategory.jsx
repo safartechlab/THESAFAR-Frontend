@@ -7,7 +7,7 @@ import { showToast } from "../../../store/slice/toast_slice";
 import { TbCategory } from "react-icons/tb";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { setcategory } from "../../../store/slice/category_slice";
+import { getcategory, setcategory } from "../../../store/slice/category_slice";
 import Getcategory from "./getcategory";
 
 const Addcategory = () => {
@@ -50,6 +50,7 @@ const Addcategory = () => {
       if (res.status) {
         dispatch(showToast({ message: res.data.message, type: "success" }));
         dispatch(setcategory())
+        dispatch(getcategory())
         resetForm();
         setImgprev(null);
         setSelectedFile(null);
