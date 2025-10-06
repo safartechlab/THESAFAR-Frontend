@@ -47,7 +47,7 @@ const Header = () => {
   };
 
   return (
-    <Navbar expand="lg" className="header_color">
+    <Navbar expand="lg" className="header_color r">
       <Container
         fluid
         className="d-flex align-items-center justify-content-between"

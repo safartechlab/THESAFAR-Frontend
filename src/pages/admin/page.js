@@ -3,12 +3,18 @@ import { FaOpencart } from "react-icons/fa";
 import { LuShoppingBasket } from "react-icons/lu";
 import { FaList } from "react-icons/fa"
 import { RiEqualizer2Line ,RiCustomSize } from "react-icons/ri";
+import { FaImage } from "react-icons/fa";
 
 export const adminpages = [
     {
         name:'Dashboard',
         path:'/Admin',
         icon:MdOutlineSpaceDashboard
+    },
+    {
+        name :"Banner",
+        icon : FaImage,
+        path :"/admin/Banner"
     },
     {
         name:'Order',

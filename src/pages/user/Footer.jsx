@@ -137,7 +137,7 @@ const Footer = () => {
           </Col>
           <Col md={6} className="text-md-end">
             <p style={{ color: "#aaa", margin: 0 }}>
-              Designed with ❤️ by THE SAFAR Team
+              Designed with ❤️ by THE SAFARTECHLAB
             </p>
           </Col>
         </Row>

@@ -23,10 +23,10 @@ const Getproduct = () => {
 
   return (
     <>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>#</th>
+      <Table striped bordered hover className="text-center">
+        <thead >
+          <tr >
+            <th>Sr.No</th>
             <th>Images</th>
             <th>Product Name</th>
             <th>Price</th>

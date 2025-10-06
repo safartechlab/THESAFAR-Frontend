@@ -56,7 +56,7 @@ const UpdateProduct = () => {
         discountType: productup.discountType || "Percentage",
         sizes:
           productup.sizes?.map((s) => ({
-            size:s.size && typeof s.size === "object" ? s.size._id : s.size,
+            size: typeof s.size === "object" ? s.size._id : s.size,
             price: s.price,
             stock: s.stock,
           })) || [],
@@ -216,7 +216,7 @@ const UpdateProduct = () => {
                 <Col md={3}>
                   <Form.Select value={s.size} onChange={(e) => handleSizeChange(idx, "size", e.target.value)}>
                     <option value="">Select size</option>
-                    {subcategory?.find((sub) => sub._id === product.subcategory)?.sizes?.map((sz) => (
+                    {subcategory?.find((sub) =>  sub._id === product.subcategory)?.sizes?.map((sz) => (
                       <option key={sz._id} value={sz._id}>
                         {sz.size}
                       </option>

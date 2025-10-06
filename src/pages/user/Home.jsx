@@ -1,6 +1,12 @@
-const Home = () =>{
-    return (
-        <h1>Home</h1>
-    )
-}
-export default Home
+import Bannerslider from "../user/Bannderslider";
+
+const Home = () => {
+  return (
+    <div>
+      <Bannerslider />
+    </div>
+  );
+};
+
+export default Home;
+ 
