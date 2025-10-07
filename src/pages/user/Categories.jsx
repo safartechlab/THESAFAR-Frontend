@@ -1,52 +1,105 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
 import { getproduct } from "../../store/slice/productSlice";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Card, Row, Col } from "react-bootstrap";
 
 const Product = () => {
   const dispatch = useDispatch();
-  const location = useLocation();
-  const products = useSelector((state) => state.product.productlist);
-
-  // ✅ Get category ID from query param
-  const params = new URLSearchParams(location.search);
-  const categoryId = params.get("category");
+  const product = useSelector((state) => state.product.productlist);
 
   useEffect(() => {
-    // ✅ Fetch all products (or filter by category)
-    if (categoryId) {
-      dispatch(getproduct({ categoryId })); // assuming your API supports filtering
-    } else {
-      dispatch(getproduct());
-    }
-  }, [dispatch, categoryId]);
+    dispatch(getproduct());
+  }, [dispatch]);
+
+  // ✅ Helper: format price with currency
+  const formatPrice = (price) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(price);
 
   return (
-    <Container className="mt-4">
-      <Row>
-        {products?.length > 0 ? (
-          products.map((item, index) => (
-            <Col key={index} md={3} className="mb-4">
-              <Card className="shadow-sm h-100">
-                <Card.Img
-                  variant="top"
-                  src={item?.images[0]?.filepath}
-                  alt={item?.productName}
-                  style={{ height: "200px", objectFit: "cover" }}
-                />
-                <Card.Body>
-                  <Card.Title>{item?.productName}</Card.Title>
-                  <Card.Text>₹{item?.price}</Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))
-        ) : (
-          <p className="text-center mt-4">No products found</p>
-        )}
-      </Row>
-    </Container>
+    <Row className="g-4">
+      {product.map((pro, index) => {
+        // --- PRICE HANDLING ---
+        let displayPrice = "";
+        let originalPrice = null;
+
+        if (pro.sizes && pro.sizes.length > 0) {
+          // Sizes exist → price range
+          const prices = pro.sizes.map((s) => s.price);
+          const min = Math.min(...prices);
+          const max = Math.max(...prices);
+          displayPrice =
+            min === max
+              ? formatPrice(min)
+              : `${formatPrice(min)} - ${formatPrice(max)}`;
+        } else {
+          // Single price
+          displayPrice = formatPrice(pro.price);
+        }
+
+        // --- DISCOUNT HANDLING ---
+        if (pro.discountType === "Percentage" && pro.discount > 0) {
+          if (pro.sizes && pro.sizes.length > 0) {
+            const min = Math.min(...pro.sizes.map((s) => s.price));
+            const max = Math.max(...pro.sizes.map((s) => s.price));
+            const discountedMin = min - (min * pro.discount) / 100;
+            const discountedMax = max - (max * pro.discount) / 100;
+            displayPrice = `${formatPrice(discountedMin)} - ${formatPrice(
+              discountedMax
+            )}`;
+            originalPrice =
+              min === max
+                ? formatPrice(min)
+                : `${formatPrice(min)} - ${formatPrice(max)}`;
+          } else {
+            const discounted = pro.price - (pro.price * pro.discount) / 100;
+            originalPrice = formatPrice(pro.price);
+            displayPrice = formatPrice(discounted);
+          }
+        }
+
+        return (
+          <Col key={index} sm={6} md={4} lg={3}>
+            <Card style={{ width: "100%" }} className="h-100 shadow-sm">
+              <Card.Img
+                variant="top"
+                src={pro.images?.[0]?.filepath || "/no-image.png"}
+                alt={pro.productName}
+                style={{ height: "200px", objectFit: "cover" }}
+              />
+              <Card.Body>
+                <Card.Title>{pro.productName}</Card.Title>
+                <Card.Text>{pro.description}</Card.Text>
+
+                {/* Discounted Price Display */}
+                <div>
+                  {originalPrice ? (
+                    <>
+                      <strong style={{ color: "green" }}>{displayPrice}</strong>
+                      <span style={{ textDecoration: "line-through", color: "#888" }}>
+                        {originalPrice}
+                      </span>{" "}
+                      <span className="ms-1 text-danger">({pro.discount}% OFF)</span>
+                    </>
+                  ) : (
+                    <strong>{displayPrice}</strong>
+                  )}
+                </div>
+
+                <div className="mt-2">
+                  <small className="text-muted">
+                    Gender: {pro.gender || "Unisex"}
+                  </small>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        );
+      })}
+    </Row>
   );
 };
 
