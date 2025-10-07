@@ -18,38 +18,47 @@ const CategorySlider = () => {
     dispatch(getsubcate());
   }, [dispatch]);
 
-  // Group subcategories by a property (like age group / type)
   const getGroupedSubcategories = (catId) => {
     const subs = subcategories.filter((subc) => subc.categoryID === catId);
     const grouped = {};
     subs.forEach((sub) => {
-      if (!grouped[sub.group]) grouped[sub.group] = [];
-      grouped[sub.group].push(sub.subcategory);
+      const groupName = sub.group ? sub.group : "Other";
+      if (!grouped[groupName]) grouped[groupName] = [];
+      grouped[groupName].push(sub.subcategory);
     });
     return grouped;
   };
 
   return (
-    <div className="category-menu-container mt-2">
-      <div className="d-flex category-bar">
+    <div className="category-menu-container bg-light shadow-sm py-2">
+      <div className="container d-flex justify-content-center flex-wrap">
         {categories.map((cat) => (
           <div
             key={cat._id}
-            className="category-item mx-2"
+            className="category-item position-relative mx-3 my-1 text-center"
             onMouseEnter={() => setHoveredCategory(cat._id)}
             onMouseLeave={() => setHoveredCategory(null)}
           >
-            {cat.categoryname}
+            <div className="fw-semibold text-dark category-name px-3 py-2 rounded">
+              {cat.categoryname}
+            </div>
 
             {hoveredCategory === cat._id && (
-              <div className="subcategory-dropdown p-3 shadow">
-                <div className="d-flex">
+              <div className="mega-menu shadow-lg position-absolute bg-white p-4 rounded">
+                <div className="row">
                   {Object.entries(getGroupedSubcategories(cat._id)).map(
                     ([groupName, subs]) => (
-                      <div className="me-4" key={groupName}>
-                        {/* <h6 className="fw-bold">{groupName}</h6> */}
+                      <div className="col-md-3 col-sm-6" key={groupName}>
+                        {groupName !== "Other" && (
+                          <h6 className="fw-bold text-primary mb-2 border-bottom pb-1">
+                            {groupName}
+                          </h6>
+                        )}
                         {subs.map((sub) => (
-                          <div key={sub} className="subcategory-item">
+                          <div
+                            key={sub}
+                            className="subcategory-item py-1 text-secondary"
+                          >
                             {sub}
                           </div>
                         ))}

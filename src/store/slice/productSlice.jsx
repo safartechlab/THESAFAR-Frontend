@@ -31,14 +31,20 @@ const ProductSlice = createSlice({
 export const {setproduct , setproupdate , colsseupdate , setprodelete , closeprodelete} = ProductSlice.actions
 export default ProductSlice.reducer
 
-export const getproduct = () => async(dispatch)=>{
-    try{
-        const res = await axios.get(`${Baseurl}product/getallproduct`)
-        console.log(res.data.data);
-        dispatch(setproduct(res.data.data))        
-    }
-    catch(error){
-        console.log(error);
-        
-    }
-}
+export const getproduct = (filters = {}) => async (dispatch) => {
+  try {
+    const { categoryId } = filters;
+
+    // ✅ Build URL depending on whether a category is passed
+    const url = categoryId
+      ? `${Baseurl}product/getallproduct?category=${categoryId}`
+      : `${Baseurl}product/getallproduct`;
+
+    const res = await axios.get(url);
+    console.log("Filtered Products:", res.data.data);
+
+    dispatch(setproduct(res.data.data));
+  } catch (error) {
+    console.error("Error fetching products:", error);
+  }
+};

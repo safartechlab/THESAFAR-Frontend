@@ -31,8 +31,7 @@ const Addsubcategory = () => {
   subcategory: Yup.string().required("Subcategory name is required"),
   category: Yup.string().required("Category is required"),
   sizes: Yup.array()
-    .of(Yup.string().required("Size is required"))
-    .min(1, "At least one size is required"),
+    .of(Yup.string().optional("Size is required"))
 });
 
 
