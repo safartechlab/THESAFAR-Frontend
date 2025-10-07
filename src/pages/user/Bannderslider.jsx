@@ -3,9 +3,8 @@ import axios from "axios";
 import { Baseurl } from "../../baseurl";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const BootstrapCarousel = () => {
+const BootstrapGridBanner = () => {
   const [slides, setSlides] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchSlides = async () => {
@@ -19,36 +18,37 @@ const BootstrapCarousel = () => {
     fetchSlides();
   }, []);
 
-  // Auto-slide every 1 second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) =>
-        slides.length > 0 ? (prevIndex + 1) % slides.length : 0
-      );
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [slides]);
+  if (slides.length < 3) return null; 
 
   return (
-    <div className="carousel slide">
-      <div className="carousel-inner">
-        {slides.map((slide, idx) => (
-          <div
-            key={slide._id}
-            className={`carousel-item ${idx === currentIndex ? "active" : ""}`}
-          >
-            <img
-              src={slide.bannerimage[0]?.filepath}
-              className="d-block w-100"
-              alt={slide.title || "slide"}
-              style={{ height: "500px", maxWidth: "100%", objectFit: "fit" }}
-            />
-          </div>
-        ))}
+    <div className="container-fluid my-2">
+      <div className="row">
+        <div className="col-md-6">
+          <img
+            src={slides[0].bannerimage[0]?.filepath}
+            alt={slides[0].title || "slide"}
+            className="img-fluid w-100"
+            style={{ height: "500px", objectFit: "cover" }}
+          />
+        </div>
+
+        <div className="col-md-6 d-flex flex-column gap-3">
+          <img
+            src={slides[1].bannerimage[0]?.filepath}
+            alt={slides[1].title || "slide"}
+            className="img-fluid w-100"
+            style={{ height: "245px", objectFit: "cover" }}
+          />
+          <img
+            src={slides[2].bannerimage[0]?.filepath}
+            alt={slides[2].title || "slide"}
+            className="img-fluid w-100"
+            style={{ height: "245px", objectFit: "cover" }}
+          />
+        </div>
       </div>
     </div>
   );
 };
 
-export default BootstrapCarousel;
+export default BootstrapGridBanner;
