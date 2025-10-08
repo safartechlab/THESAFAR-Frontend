@@ -18,17 +18,17 @@ const BootstrapGridBanner = () => {
     fetchSlides();
   }, []);
 
-  if (slides.length < 3) return null; 
+  if (slides.length < 3) return null;
 
   return (
-    <div className="container-fluid my-2">
+    <div className="container-fluid my-2 p-5">
       <div className="row">
         <div className="col-md-6">
           <img
             src={slides[0].bannerimage[0]?.filepath}
             alt={slides[0].title || "slide"}
             className="img-fluid w-100"
-            style={{ height: "500px", objectFit: "cover" }}
+            style={{ height: "500px", objectFit: "contain" }}
           />
         </div>
 
@@ -37,13 +37,13 @@ const BootstrapGridBanner = () => {
             src={slides[1].bannerimage[0]?.filepath}
             alt={slides[1].title || "slide"}
             className="img-fluid w-100"
-            style={{ height: "245px", objectFit: "cover" }}
+            style={{ height: "245px", objectFit: "contain" }}
           />
           <img
             src={slides[2].bannerimage[0]?.filepath}
             alt={slides[2].title || "slide"}
             className="img-fluid w-100"
-            style={{ height: "245px", objectFit: "cover" }}
+            style={{ height: "245px", objectFit: "contain" }}
           />
         </div>
       </div>

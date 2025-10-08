@@ -1,72 +1,50 @@
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
 
-
+/* Category Tags (Horizontal Scroll) */
 .category-tags {
   display: flex;
-  flex-wrap: nowrap; /* Keep items in a single line */
-  overflow-x: auto; /* Enable horizontal scroll if too many */
-  scrollbar-width: thin; /* Firefox thin scrollbar */
-  -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -ms-overflow-style: none;
 }
 
 .category-tags::-webkit-scrollbar {
-  height: 6px; /* Small horizontal scrollbar */
+  height: 6px;
 }
 
-.category {
-  white-space: nowrap;
-  margin-top: 10px; /* Prevent text from breaking */
-  padding: 8px 16px;
-  /* border-radius: 20px; */
-  /* background: #f5f5f5; */
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.category:hover {
-  background: #ddd;
-}
-
-/* Divider between Nav links */
-.menu-links a {
-  position: relative;
-  display: inline-block;
-}
-
-.menu-links a:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  right: 0px; /* space between text and divider */
-  top: 20%;
-  height: 60%; /* divider height relative to text */
-  border-right: 1px solid #0d0d0d; /* divider color */
-}
-
-/* Divider before icons */
-.header-divider {
-  border-left: 1px solid #0d0d0d;
-  height: 30px;
-  align-self: center;
-}
-.category-menu-container {
-  position: relative; /* ensure dropdowns are positioned relative to this container */
-  z-index: 10; /* adjust if needed to stay above banners */
-}
-
+/* Category Item */
 .category-item {
-  position: relative; /* make dropdowns relative to each category item */
+  position: relative; /* for dropdowns */
+  cursor: pointer;
+  padding: 0.5rem 0;
+  transition: all 0.3s ease;
+  font-size: 15px;
+  white-space: nowrap;
+  font-weight: 500;
 }
 
+/* Category Name Hover Effect */
+.category-name {
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease-in;
+}
+
+.category-item:hover .category-name {
+  color: #a200b8;
+  border-color: #a200b8;
+}
+
+/* Subcategory Dropdown */
 .subcategory-dropdown {
-  position: absolute; /* float over other content */
-  top: 100%; /* directly below the category item */
+  position: absolute;
+  top: 100%;
   left: 0;
   background-color: #fff;
-  z-index: 1000; /* ensure it's above banners or other elements */
+  z-index: 1000;
   border-radius: 4px;
-  min-width: 200px; /* adjust as needed */
+  min-width: 200px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -79,6 +57,124 @@
   background-color: #f0f0f0;
 }
 
+/* Category Menu Container */
+.category-menu-container {
+  position: relative;
+  z-index: 10;
+}
 
+/* Category Bar Container */
+.category-bar-container {
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  position: relative;
+  z-index: 1000;
+  font-family: 'Poppins', sans-serif;
+}
 
+/* Mega Dropdown */
+.mega-dropdown {
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  animation: fadeIn 0.25s ease-in-out;
+  border-top: 2px solid #a200b8;
+}
 
+/* Text Colors */
+.text-purple {
+  color: #a200b8;
+}
+
+/* Submenu Items */
+.submenu-item {
+  color: #555;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.submenu-item:hover {
+  color: #0b030c;
+  text-decoration: underline;
+}
+
+/* Menu Link Dividers */
+.menu-links a {
+  position: relative;
+  display: inline-block;
+}
+
+.menu-links a:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  border-right: 1px solid #0d0d0d;
+}
+
+/* Header Divider */
+.header-divider {
+  border-left: 1px solid #0d0d0d;
+  height: 30px;
+  align-self: center;
+}
+
+/* Service Card Hover */
+.service-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon Wrapper (Map Pin Shape) */
+.icon-wrapper {
+  background-color: var(--textcolor);
+  width: 70px;
+  height: 70px;
+  border-radius: 50% 50% 50% 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.icon-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 28px;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--textcolor);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mega-dropdown {
+    width: 95%;
+    left: 2.5%;
+  }
+
+  .service-card {
+    margin-bottom: 1.5rem;
+  }
+}
