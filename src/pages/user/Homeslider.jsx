@@ -34,9 +34,9 @@ const Categorysilder = () => {
     ],
   };
 
-  // const handleCategoryClick = (cat) => {
-  //   navigate(`/categories?category=${cat._id}`);
-  // };
+  const handleCategoryClick = (cat) => {
+    navigate(`/categories?category=${cat._id}`);
+  };
 
   return (
     <Container fluid className="py-4">
@@ -47,7 +47,7 @@ const Categorysilder = () => {
         {category?.map((cat, index) => (
           <div key={index} className="px-2">
             <Card
-              // onClick={() => handleCategoryClick(cat)}
+              onClick={() => handleCategoryClick(cat)}
               className="category-card border-0 shadow-sm"
               style={{
                 cursor: "pointer",
