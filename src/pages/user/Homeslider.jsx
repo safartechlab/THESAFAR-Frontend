@@ -4,11 +4,10 @@ import { getcategory } from "../../store/slice/category_slice";
 import { useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import Card from "react-bootstrap/Card";
-import Container from "react-bootstrap/Container";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-const Categories = () => {
+const CategorySlider = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const category = useSelector((state) => state.category.categorylist);
@@ -24,17 +23,14 @@ const Categories = () => {
     slidesToShow: 6,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2500,
+    autoplaySpeed: 2000,
     arrows: false,
   };
 
   // ✅ handle category click
   const handleCategoryClick = (cat) => {
-    // Dispatch product fetch for selected category
-    dispatch(getproduct({ categoryId: cat._id }));
-
-    // Navigate to product listing page (same route)
-    navigate(`/categories?category=${cat._id}`);
+    // Navigate to product listing page with category ID in URL
+    navigate(`/categories?category=${cat._id}&name=${encodeURIComponent(cat.categoryname)}`);
   };
 
   return (
@@ -68,4 +64,4 @@ const Categories = () => {
   );
 };
 
-export default Categories;
+export default CategorySlider;
