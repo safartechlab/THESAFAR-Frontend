@@ -187,10 +187,14 @@ const Header = () => {
           </Col>
 
           <Col>
+           <Link to="/wishlist">
             <FaRegHeart className="fs-5 font-color" />
+            </Link>
           </Col>
           <Col>
-            <LuShoppingCart className="fs-5 font-color" />
+            <Link to="/cart">
+              <LuShoppingCart className="fs-5 font-color" />
+            </Link>
           </Col>
 
           <Col>

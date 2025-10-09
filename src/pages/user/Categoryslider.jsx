@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getcategory } from "../../store/slice/category_slice";
 import { getsubcate } from "../../store/slice/Subcategoryslice";
+import { useNavigate } from "react-router-dom";
 import "../../safar_css/user.css";
 
 const CategorySlider = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const categories = useSelector((state) => state.category.categorylist);
   const subcategories = useSelector(
     (state) => state.subcategory.subcategorylist
@@ -27,6 +29,14 @@ const CategorySlider = () => {
       grouped[groupName].push(sub.subcategory);
     });
     return grouped;
+  };
+
+  // Navigate to category page with both categoryId and subcategory
+  const handleSubcategoryClick = (subcat, cat) => {
+    navigate(
+      `/categories?category=${cat._id}&subcategory=${encodeURIComponent(subcat)}`
+    );
+    setHoveredCategory(null);
   };
 
   return (
@@ -58,6 +68,8 @@ const CategorySlider = () => {
                           <div
                             key={sub}
                             className="subcategory-item py-1 text-secondary"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleSubcategoryClick(sub, cat)}
                           >
                             {sub}
                           </div>

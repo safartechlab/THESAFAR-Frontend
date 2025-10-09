@@ -4,10 +4,10 @@ import { getcategory } from "../../store/slice/category_slice";
 import { useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import Card from "react-bootstrap/Card";
-import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick.css";  
 import "slick-carousel/slick/slick-theme.css";
 
-const CategorySlider = () => {
+const Slidercategory = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const category = useSelector((state) => state.category.categorylist);
@@ -64,4 +64,4 @@ const CategorySlider = () => {
   );
 };
 
-export default CategorySlider;
+export default Slidercategory;

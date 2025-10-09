@@ -19,7 +19,7 @@ const Addproduct = () => {
     productName: Yup.string().required("Product name is required"),
     gender: Yup.string()
       .oneOf(["Male", "Female", "Unisex"])
-      .required("Gender is required"),
+      .optional("Gender is required"),
     description: Yup.string().required("Description is required"),
     review: Yup.string(),
     category: Yup.string().required("Category is required"),
