@@ -10,6 +10,7 @@ import OtpVerification from "../pages/user/Otpverification";
 import ResetPassword from "../pages/user/Resetpassword";
 import SuccessPage from "../pages/user/Successpage";
 import Product from "../pages/user/Categories";
+import Singleproduct from "../pages/user/Showsingleproduct";
 const Endrouter = () => { 
   return (
     <Routes>
@@ -24,6 +25,8 @@ const Endrouter = () => {
         <Route path="/otpverify" element={<OtpVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/success" element={<SuccessPage />} />
+        <Route path="/singleproduct" element={<Singleproduct />} />
+
       </Route>
     </Routes>
   );

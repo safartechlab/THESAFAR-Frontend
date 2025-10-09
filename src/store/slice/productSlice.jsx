@@ -8,6 +8,7 @@ const ProductSlice = createSlice({
     productlist: [],
     productupdate: null,
     productdelete: null,
+    singleproduct:null
   },
   reducers: {
     setproduct: (state, action) => {
@@ -25,6 +26,9 @@ const ProductSlice = createSlice({
     closeprodelete: (state) => {
       state.productdelete = null;
     },
+    setsinglepro:(state,action)=>{
+      state.singleproduct =action.payload
+    }
   },
 });
 
@@ -34,6 +38,7 @@ export const {
   colsseupdate,
   setprodelete,
   closeprodelete,
+  setsinglepro
 } = ProductSlice.actions;
 export default ProductSlice.reducer;
 
@@ -50,7 +55,8 @@ export const getproduct =
         : `${Baseurl}product/getallproduct`;
 
       const res = await axios.get(url);
-
+      console.log(res.data);
+      
       dispatch(setproduct(res.data?.data || []));
     } catch (error) {
       console.error("Error fetching products:", error);

@@ -16,6 +16,7 @@ const CategoryPage = () => {
       dispatch(getproduct({ categoryId }));
     }
   }, [dispatch, categoryId]);
+  
 
   return (
     <div className="container py-4">

@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getcategory } from "../../store/slice/category_slice";
 import { getsubcate } from "../../store/slice/Subcategoryslice";
+import { useNavigate } from "react-router-dom";
 import "../../safar_css/user.css";
 
 const CategorySlider = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const categories = useSelector((state) => state.category.categorylist);
   const subcategories = useSelector(
     (state) => state.subcategory.subcategorylist
@@ -18,15 +21,28 @@ const CategorySlider = () => {
     dispatch(getsubcate());
   }, [dispatch]);
 
+  // ✅ Group subcategories by "group" field
   const getGroupedSubcategories = (catId) => {
     const subs = subcategories.filter((subc) => subc.categoryID === catId);
     const grouped = {};
     subs.forEach((sub) => {
       const groupName = sub.group ? sub.group : "Other";
       if (!grouped[groupName]) grouped[groupName] = [];
-      grouped[groupName].push(sub.subcategory);
+      grouped[groupName].push({
+        id: sub._id,
+        name: sub.subcategory,
+      });
     });
     return grouped;
+  };
+
+  // ✅ Navigate when a subcategory is clicked
+  const handleSubcategoryClick = (sub) => {
+    navigate(
+      `/categories?subcategory=${encodeURIComponent(sub.id)}&name=${encodeURIComponent(
+        sub.name
+      )}`
+    );
   };
 
   return (
@@ -43,6 +59,7 @@ const CategorySlider = () => {
               {cat.categoryname}
             </div>
 
+            {/* ✅ Show subcategories when hovered */}
             {hoveredCategory === cat._id && (
               <div className="mega-menu shadow-lg position-absolute bg-white p-4 rounded">
                 <div className="row">
@@ -56,10 +73,12 @@ const CategorySlider = () => {
                         )}
                         {subs.map((sub) => (
                           <div
-                            key={sub}
+                            key={sub.id}
                             className="subcategory-item py-1 text-secondary"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleSubcategoryClick(sub)}
                           >
-                            {sub}
+                            {sub.name}
                           </div>
                         ))}
                       </div>

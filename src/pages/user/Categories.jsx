@@ -1,21 +1,28 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getproduct } from "../../store/slice/productSlice";
+import { getproduct, setsinglepro } from "../../store/slice/productSlice";
 import { Card, Row, Col } from "react-bootstrap";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const Product = () => {
   const dispatch = useDispatch();
   const productList = useSelector((state) => state.product.productlist);
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams();
   const categoryFilter = searchParams.get("category");
+const subcategoryFilter = searchParams.get("subcategory");
+  const handleshow = (product)=>{
+    dispatch(setsinglepro(product))
+    navigate('/singleproduct')
+  }
 
   useEffect(() => {
     const filters = {};
     if (categoryFilter) filters.category = categoryFilter;
+    if (subcategoryFilter) filters.subcategory = subcategoryFilter;
 
     dispatch(getproduct(filters));
-  }, [dispatch, categoryFilter]);
+  }, [dispatch, categoryFilter,subcategoryFilter]);
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("en-IN", {
@@ -62,7 +69,7 @@ const Product = () => {
         const { displayPrice, originalPrice } = getPriceDisplay(pro);
 
         return (
-          <Col key={index} sm={6} md={4} lg={3}>
+          <Col key={index} sm={6} md={4} lg={3} onClick={()=>handleshow(pro)}>
             <Card className="h-100 shadow-sm">
               <Card.Img
                 variant="top"
