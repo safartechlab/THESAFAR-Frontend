@@ -7,8 +7,6 @@ import "../../safar_css/user.css";
 
 const CategorySlider = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const categories = useSelector((state) => state.category.categorylist);
   const subcategories = useSelector(
     (state) => state.subcategory.subcategorylist
@@ -34,15 +32,6 @@ const CategorySlider = () => {
       });
     });
     return grouped;
-  };
-
-  // ✅ Navigate when a subcategory is clicked
-  const handleSubcategoryClick = (sub) => {
-    navigate(
-      `/categories?subcategory=${encodeURIComponent(sub.id)}&name=${encodeURIComponent(
-        sub.name
-      )}`
-    );
   };
 
   return (
@@ -75,8 +64,6 @@ const CategorySlider = () => {
                           <div
                             key={sub.id}
                             className="subcategory-item py-1 text-secondary"
-                            style={{ cursor: "pointer" }}
-                            onClick={() => handleSubcategoryClick(sub)}
                           >
                             {sub.name}
                           </div>
