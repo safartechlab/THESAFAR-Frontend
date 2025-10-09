@@ -5,11 +5,13 @@ import Signin from "../pages/user/Signin";
 import Aboutus from "../pages/user/Aboutus";
 import Contact from "../pages/user/Contact";
 import Signup from "../pages/user/Signup";
+import Wishlist from "../pages/user/Wish";
 import Forgotpassword from "../pages/user/Forgotpassword";
 import OtpVerification from "../pages/user/Otpverification";
 import ResetPassword from "../pages/user/Resetpassword";
 import SuccessPage from "../pages/user/Successpage";
 import Product from "../pages/user/Categories";
+import Cart from "../pages/user/Cart";
 const Endrouter = () => { 
   return (
     <Routes>
@@ -24,6 +26,8 @@ const Endrouter = () => {
         <Route path="/otpverify" element={<OtpVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/success" element={<SuccessPage />} />
+        <Route path="/wishlist" element={<Wishlist/>}/>
+        <Route path="/cart" element={<Cart/>}/>
       </Route>
     </Routes>
   );
