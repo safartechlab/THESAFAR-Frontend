@@ -12,6 +12,7 @@ import ResetPassword from "../pages/user/Resetpassword";
 import SuccessPage from "../pages/user/Successpage";
 import Product from "../pages/user/Categories";
 import Cart from "../pages/user/Cart";
+import Singleproduct from "../pages/user/Showsingleproduct";
 const Endrouter = () => { 
   return (
     <Routes>
@@ -22,6 +23,7 @@ const Endrouter = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
+        <Route path="/singleproduct" element={<Singleproduct/>}/>
         <Route path="/forgot-password" element={<Forgotpassword />} />
         <Route path="/otpverify" element={<OtpVerification />} />
         <Route path="/reset-password" element={<ResetPassword />} />

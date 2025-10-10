@@ -9,7 +9,7 @@ import { addToCart } from "../../store/slice/CartSlice";
 import { showToast } from "../../store/slice/toast_slice";
 
 function Wishlist() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
     items: wishlist,
@@ -33,7 +33,7 @@ function Wishlist() {
             type: "success",
           })
         );
-         navigate("/");
+        navigate("/");
       } else {
         throw new Error(resultAction.payload?.message || "Failed to remove");
       }
@@ -91,10 +91,13 @@ function Wishlist() {
   if (loading)
     return <div className="text-center mt-5">Loading wishlist...</div>;
 
+  // ✅ FIXED: Safely handle object errors
   if (error)
     return (
       <div className="text-center mt-5 text-danger">
-        {error || "Failed to load wishlist"}
+        {typeof error === "string"
+          ? error
+          : error?.message || "Failed to load wishlist"}
       </div>
     );
 
@@ -107,7 +110,7 @@ function Wishlist() {
           className="btn btn-primary btn-sm my-2 px-3 py-2"
           style={{
             backgroundColor: "#1e3632",
-            borderColor: "#1e3632", // optional, to match button border
+            borderColor: "#1e3632",
           }}
         >
           Shop Now
