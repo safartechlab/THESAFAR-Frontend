@@ -12,7 +12,9 @@ import ResetPassword from "../pages/user/Resetpassword";
 import SuccessPage from "../pages/user/Successpage";
 import Product from "../pages/user/Categories";
 import Cart from "../pages/user/Cart";
-import Wishlist from "../pages/user/Wish";
+import Singleproduct from "../pages/user/Showsingleproduct";
+import Myaccount from "../pages/user/Myaccount";
+import MyOrders from "../pages/user/Myorders";
 const Endrouter = () => { 
   return (
     <Routes>
@@ -29,7 +31,10 @@ const Endrouter = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/wishlist" element={<Wishlist/>}/>
-      </Route>
+        <Route path="/cart" element={<Cart/>}/>
+        <Route path="/myaccount" element={<Myaccount/>}/>
+        <Route path="/myorders" element={<MyOrders/>}/>
+      </Route> 
     </Routes>
   );
 };
