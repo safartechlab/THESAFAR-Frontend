@@ -11,45 +11,68 @@ export const getCart = createAsyncThunk("cart/getCart", async (_, thunkAPI) => {
     });
     return res.data.items || [];
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.message);
+    return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
   }
 });
 
 // Add to Cart
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async ({ productId, quantity }, thunkAPI) => {
+  async ({ productId, sizeId, quantity }, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
         `${Baseurl}cart/addtocart`,
-        { productId, quantity },
+        { productId, sizeId, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return res.data.items || [];
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-// Remove from Cart
-export const removeFromCart = createAsyncThunk(
-  "cart/removeFromCart",
-  async (productId, thunkAPI) => {
+// Update Quantity
+export const updateCartQuantity = createAsyncThunk(
+  "cart/updateCartQuantity",
+  async ({ productId, sizeId, quantity }, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.delete(`${Baseurl}cart/removecart/${productId}`, {
+      const res = await axios.put(
+        `${Baseurl}cart/updatecart`, // ✅ must match backend route
+        { productId, sizeId, quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return res.data.items || [];
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
+    }
+  }
+);
+
+// Remove from Cart (fixed with product name)
+export const removeFromCart = createAsyncThunk(
+  "cart/removeFromCart",
+  async ({ cartItemId, productName }, thunkAPI) => {
+    try {
+      if (!cartItemId) throw new Error("Invalid cart item ID");
+
+      const token = localStorage.getItem("token");
+      await axios.delete(`${Baseurl}cart/removecart/${cartItemId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-       console.log(res);
+
       // Return updated cart
       const updatedRes = await axios.get(`${Baseurl}cart/getcart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return updatedRes.data.items || [];
+
+      return { items: updatedRes.data.items || [], removedProduct: productName };
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -60,10 +83,12 @@ const cartSlice = createSlice({
     cartlist: [],
     loading: false,
     error: null,
+    removedProduct: null, // store name of removed product
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Get Cart
       .addCase(getCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -76,6 +101,7 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      // Add to Cart
       .addCase(addToCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -88,12 +114,28 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(removeFromCart.pending, (state) => {
+      // Update Quantity
+      .addCase(updateCartQuantity.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(removeFromCart.fulfilled, (state, action) => {
+      .addCase(updateCartQuantity.fulfilled, (state, action) => {
         state.cartlist = action.payload;
+        state.loading = false;
+      })
+      .addCase(updateCartQuantity.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Remove from Cart
+      .addCase(removeFromCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.removedProduct = null;
+      })
+      .addCase(removeFromCart.fulfilled, (state, action) => {
+        state.cartlist = action.payload.items;
+        state.removedProduct = action.payload.removedProduct || null;
         state.loading = false;
       })
       .addCase(removeFromCart.rejected, (state, action) => {

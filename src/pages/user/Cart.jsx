@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { getCart, removeFromCart } from "../../store/slice/CartSlice";
+import {
+  getCart,
+  removeFromCart,
+  updateCartQuantity,
+} from "../../store/slice/CartSlice";
 import { showToast } from "../../store/slice/toast_slice";
 
-function Cart() {
+const Cart = () => {
   const dispatch = useDispatch();
   const { cartlist, loading, error } = useSelector((state) => state.cart);
   const [actionLoading, setActionLoading] = useState(false);
@@ -31,19 +35,61 @@ function Cart() {
     ? cartlist.reduce((sum, item) => sum + (item.quantity || 1), 0)
     : 0;
 
-  const handleDelete = async (id) => {
+  // Handle remove item
+  const handleDelete = async (cartItem) => {
+  try {
+    const cartItemId = cartItem?._id;
+    const productName =
+      cartItem.productName || cartItem.product?.productName || "Unknown product";
+
+    if (!cartItemId) throw new Error("Invalid cart item ID");
+
+    setActionLoading(true);
+
+    const resultAction = await dispatch(
+      removeFromCart({ cartItemId, productName }) // ✅ fix — pass an object
+    );
+
+    if (removeFromCart.fulfilled.match(resultAction)) {
+      dispatch(
+        showToast({
+          message: `${productName} removed from cart`,
+          type: "success",
+        })
+      );
+    } else {
+      throw new Error(resultAction.payload || "Failed to remove item");
+    }
+  } catch (err) {
+    dispatch(
+      showToast({
+        message: err.message || "Something went wrong",
+        type: "error",
+      })
+    );
+  } finally {
+    setActionLoading(false);
+  }
+};
+;
+
+  // Handle quantity change
+  const handleUpdateQuantity = async (cartItem, change) => {
     try {
       setActionLoading(true);
-      const resultAction = await dispatch(removeFromCart(id));
-      if (removeFromCart.fulfilled.match(resultAction)) {
-        dispatch(
-          showToast({
-            message: resultAction.payload?.message || "Removed from cart",
-            type: "success",
-          })
-        );
-      } else {
-        throw new Error(resultAction.payload?.message || "Failed to remove item");
+      const newQuantity = (cartItem.quantity || 1) + change;
+      if (newQuantity < 1) return;
+
+      const resultAction = await dispatch(
+        updateCartQuantity({
+          productId: cartItem.productId || cartItem.product?._id,
+          sizeId: cartItem.size || null,
+          quantity: newQuantity,
+        })
+      );
+
+      if (!updateCartQuantity.fulfilled.match(resultAction)) {
+        throw new Error(resultAction.payload || "Failed to update quantity");
       }
     } catch (err) {
       console.error(err);
@@ -75,10 +121,7 @@ function Cart() {
         <Link
           to="/categories"
           className="btn btn-primary btn-sm my-2 px-3 py-2"
-          style={{
-            backgroundColor: "#1e3632",
-            borderColor: "#1e3632",
-          }}
+          style={{ backgroundColor: "#1e3632", borderColor: "#1e3632" }}
         >
           Shop Now
         </Link>
@@ -92,17 +135,17 @@ function Cart() {
       <div className="row">
         {/* Cart Items */}
         <div className="col-lg-8">
-          {cartlist.map((item, index) => {
+          {cartlist.map((item) => {
             const originalPrice = item.product?.price ?? item.price ?? 0;
             const discountedPrice =
-              item.product?.discountedPrice ?? item.discountedPrice ?? originalPrice;
+              item.product?.discountedPrice ??
+              item.discountedPrice ??
+              originalPrice;
             const finalPrice = discountedPrice * (item.quantity || 1);
-
-            const productKey = item.productId ?? item._id ?? index;
 
             return (
               <div
-                key={productKey}
+                key={item._id}
                 className="card mb-3 shadow-sm border-0"
                 style={{ borderRadius: "10px" }}
               >
@@ -116,7 +159,11 @@ function Cart() {
                         item.product?.images?.[0]?.filepath ||
                         "https://via.placeholder.com/100?text=No+Image"
                       }
-                      alt={item.productName || item.product?.productName || "Product"}
+                      alt={
+                        item.productName ||
+                        item.product?.productName ||
+                        "Product"
+                      }
                       className="img-fluid p-2"
                       style={{ height: "100px", objectFit: "contain" }}
                     />
@@ -126,24 +173,49 @@ function Cart() {
                   <div className="col-md-6">
                     <div className="card-body">
                       <h5 className="card-title mb-1">
-                        {item.productName || item.product?.productName || "Unnamed Product"}
+                        {item.productName ||
+                          item.product?.productName ||
+                          "Unnamed Product"}
                       </h5>
-                      <p className="card-text mb-1 text-muted">
-                        Quantity: {item.quantity || 1}
-                      </p>
+
+                      {/* Quantity Controls */}
+                      <div className="d-flex align-items-center mb-1">
+                        <span className="me-2">Quantity:</span>
+                        <button
+                          className="btn btn-outline-secondary btn-sm me-1"
+                          onClick={() => handleUpdateQuantity(item, -1)}
+                          disabled={actionLoading || item.quantity <= 1}
+                        >
+                          -
+                        </button>
+                        <span className="mx-1">{item.quantity || 1}</span>
+                        <button
+                          className="btn btn-outline-secondary btn-sm ms-1"
+                          onClick={() => handleUpdateQuantity(item, 1)}
+                          disabled={actionLoading}
+                        >
+                          +
+                        </button>
+                      </div>
 
                       {discountedPrice < originalPrice ? (
                         <p className="card-text mb-1">
                           <span className="text-decoration-line-through text-muted me-2">
                             ₹{originalPrice}
                           </span>
-                          <strong className="text-success">₹{discountedPrice}</strong>
+                          <strong className="text-success">
+                            ₹{discountedPrice}
+                          </strong>
                         </p>
                       ) : (
-                        <p className="card-text fw-semibold">₹{originalPrice}</p>
+                        <p className="card-text fw-semibold">
+                          ₹{originalPrice}
+                        </p>
                       )}
 
-                      <p className="card-text fw-semibold">Total: ₹{finalPrice.toFixed(2)}</p>
+                      <p className="card-text fw-semibold">
+                        Total: ₹{finalPrice.toFixed(2)}
+                      </p>
                     </div>
                   </div>
 
@@ -151,7 +223,7 @@ function Cart() {
                   <div className="col-md-3 text-end pe-4">
                     <button
                       className="btn btn-outline-danger btn-sm"
-                      onClick={() => handleDelete(productKey)}
+                      onClick={() => handleDelete(item)}
                       disabled={actionLoading}
                     >
                       Remove
@@ -184,6 +256,6 @@ function Cart() {
       </div>
     </div>
   );
-}
+};
 
 export default Cart;
