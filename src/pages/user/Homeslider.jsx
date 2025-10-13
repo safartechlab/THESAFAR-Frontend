@@ -19,48 +19,128 @@ const Slidercategory = () => {
   const settings = {
     dots: false,
     infinite: true,
-    speed: 1000,
-    slidesToShow: 6,
+    speed: 800,
+    slidesToShow: 5,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2000,
+    autoplaySpeed: 2500,
     arrows: false,
+    responsive: [
+      {
+        breakpoint: 1200,
+        settings: { slidesToShow: 4 },
+      },
+      {
+        breakpoint: 992,
+        settings: { slidesToShow: 3 },
+      },
+      {
+        breakpoint: 768,
+        settings: { slidesToShow: 2 },
+      },
+      {
+        breakpoint: 576,
+        settings: { slidesToShow: 1 },
+      },
+    ],
   };
 
-  // ✅ handle category click
   const handleCategoryClick = (cat) => {
-    // Navigate to product listing page with category ID in URL
     navigate(`/categories?category=${cat._id}&name=${encodeURIComponent(cat.categoryname)}`);
   };
 
   return (
-    <Slider {...settings}>
-      {category?.map((cat, index) => (
-        <Card
-          key={index}
-          onClick={() => handleCategoryClick(cat)}
-          className="m-2 shadow-sm"
-          style={{
-            width: "16rem",
-            cursor: "pointer",
-            borderRadius: "10px",
-            overflow: "hidden",
-          }}
-        >
-          <Card.Img
-            variant="top"
-            src={cat?.categoryimage?.filepath}
-            alt={cat?.categoryname}
-            style={{ height: "150px", objectFit: "cover" }}
-          />
-          <Card.Body>
-            <Card.Title className="text-center text-dark">
-              {cat?.categoryname}
-            </Card.Title>
-          </Card.Body>
-        </Card>
-      ))}
-    </Slider>
+    <div className="category-slider-container py-4">
+      <h3 className="text-center mb-4 fw-bold" style={{ letterSpacing: "1px" }}>
+        Shop by Category
+      </h3>
+
+      <Slider {...settings}>
+        {category?.map((cat, index) => (
+          <div key={index} className="px-2">
+            <Card
+              onClick={() => handleCategoryClick(cat)}
+              className="border-0 shadow-sm category-card"
+              style={{
+                borderRadius: "15px",
+                overflow: "hidden",
+                position: "relative",
+                cursor: "pointer",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              }}
+            >
+              <div
+                style={{
+                  position: "relative",
+                  overflow: "hidden",
+                  height: "180px",
+                }}
+              >
+                <Card.Img
+                  src={cat?.categoryimage?.filepath}
+                  alt={cat?.categoryname}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    transition: "transform 0.5s ease",
+                  }}
+                  className="category-image"
+                />
+                {/* Gradient Overlay */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "50%",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)",
+                  }}
+                ></div>
+                {/* Category Name Overlay */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "10px",
+                    left: 0,
+                    width: "100%",
+                    color: "#fff",
+                    textAlign: "center",
+                    fontWeight: "600",
+                    fontSize: "1.1rem",
+                    letterSpacing: "0.5px",
+                    textShadow: "0px 2px 6px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  {cat?.categoryname}
+                </div>
+              </div>
+            </Card>
+          </div>
+        ))}
+      </Slider>
+
+      {/* Custom Hover Effect */}
+      <style>
+        {`
+          .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+          }
+
+          .category-card:hover .category-image {
+            transform: scale(1.1);
+          }
+
+          .category-slider-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+          }
+        `}
+      </style>
+    </div>
   );
 };
 

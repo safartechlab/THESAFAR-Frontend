@@ -21,18 +21,12 @@ const CategoryPage = () => {
 
   useEffect(() => {
     const result = products.filter((p) => {
-      // ✅ Category filter: include all if "All" selected
       const inCategory =
-        !categoryId ||
-        categoryId === "All" ||
-        p.category?.categoryname === categoryId;
+        !categoryId || p.category?._id === categoryId;
 
-      // Subcategory filter
       const inSubcategory =
-        !subcategoryName ||
-        p.subcategoryname?.toLowerCase() === subcategoryName.toLowerCase();
+        !subcategoryName || p.subcategoryname?.toLowerCase() === subcategoryName.toLowerCase();
 
-      // Universal search: productName, categoryname, subcategoryname
       const inSearch =
         !query ||
         p.productName?.toLowerCase().includes(query) ||
