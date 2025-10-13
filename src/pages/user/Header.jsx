@@ -9,37 +9,62 @@ import { LuUserRound, LuShoppingCart } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import { clearauth } from "../../store/slice/authSlice";
 import { FaRegHeart, FaSearch } from "react-icons/fa";
+import "../../safar_css/user.css";
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [category, setCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const userdetails = useSelector((state) => state.auth?.user);
   const auth = useSelector((state) => state.auth?.auth);
   const categories = useSelector((state) => state.category.categorylist);
 
-  // Fetch categories when Header mounts
+  // Fetch categories
   useEffect(() => {
     dispatch(getcategory());
   }, [dispatch]);
 
-  // Search handler
+  // 🔍 Search handler
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
+      // Use /categories route so CategoryPage can read params
       navigate(
-        `/search?category=${encodeURIComponent(
-          category
-        )}&query=${encodeURIComponent(searchTerm)}`
+        `/categories?query=${encodeURIComponent(
+          searchTerm
+        )}&category=${encodeURIComponent(selectedCategory)}`
       );
       setSearchTerm("");
     }
   };
 
-  // Logout
+  // 📂 Handle category change
+  const handleCategoryChange = (e) => {
+    const selectedValue = e.target.value;
+    setSelectedCategory(selectedValue);
+
+    if (selectedValue === "All") {
+      // ✅ Navigate to home when 'All' selected
+      navigate(`/`);
+    } else {
+      // ✅ Find selected category and go to its product listing
+      const selectedCat = categories.find(
+        (cat) => cat.categoryname === selectedValue
+      );
+      if (selectedCat) {
+        navigate(
+          `/categories?category=${selectedCat._id}&name=${encodeURIComponent(
+            selectedCat.categoryname
+          )}`
+        );
+      }
+    }
+  };
+
+  // 🚪 Logout handler
   const logout = () => {
     localStorage.removeItem("token");
     dispatch(clearauth());
@@ -52,7 +77,7 @@ const Header = () => {
         fluid
         className="d-flex align-items-center justify-content-between"
       >
-        {/* Logo */}
+        {/* 🏷️ Logo */}
         <Navbar.Brand
           as={Link}
           to="/"
@@ -61,16 +86,16 @@ const Header = () => {
           THE SAFAR.store
         </Navbar.Brand>
 
-        {/* Category + Search bar */}
+        {/* 🔎 Category + Search bar */}
         <Col xs={12} md={6} lg={6}>
           <Form onSubmit={handleSearch}>
             <InputGroup>
               <Form.Select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                value={selectedCategory}
+                onChange={handleCategoryChange}
                 style={{
                   width: "auto",
-                  maxWidth: "100px",
+                  maxWidth: "120px",
                   borderRight: "none",
                   backgroundColor: "transparent",
                   color: "black",
@@ -111,7 +136,7 @@ const Header = () => {
           </Form>
         </Col>
 
-        {/* Nav Links */}
+        {/* 📑 Nav Links */}
         <Navbar.Collapse
           id="basic-navbar-nav"
           className="justify-content-center"
@@ -132,10 +157,10 @@ const Header = () => {
           </Nav>
         </Navbar.Collapse>
 
-        {/* Divider before icons */}
+        {/* Divider */}
         <div className="header-divider mx-3"></div>
 
-        {/* Right side: User + Cart */}
+        {/* 👤 User / Wishlist / Cart */}
         <Row className="align-items-center">
           <Col className="singup">
             {!auth ? (
@@ -168,10 +193,16 @@ const Header = () => {
                 <div className="login_sub header_color position-absolute">
                   <div className="d-flex flex-column text-start">
                     <Link
-                      to="/Signin"
+                      to="/myaccount"
                       className="p-3 border-bottom font-color text-decoration-none"
                     >
                       My Account
+                    </Link>
+                    <Link
+                      to="/myorders"
+                      className="p-3 border-bottom font-color text-decoration-none"
+                    >
+                      My Orders
                     </Link>
                     <div
                       onClick={logout}
@@ -187,8 +218,8 @@ const Header = () => {
           </Col>
 
           <Col>
-           <Link to="/wishlist">
-            <FaRegHeart className="fs-5 font-color" />
+            <Link to="/wishlist">
+              <FaRegHeart className="fs-5 font-color" />
             </Link>
           </Col>
           <Col>

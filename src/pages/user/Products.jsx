@@ -21,12 +21,18 @@ const CategoryPage = () => {
 
   useEffect(() => {
     const result = products.filter((p) => {
+      // ✅ Category filter: include all if "All" selected
       const inCategory =
-        !categoryId || p.category?._id === categoryId;
+        !categoryId ||
+        categoryId === "All" ||
+        p.category?.categoryname === categoryId;
 
+      // Subcategory filter
       const inSubcategory =
-        !subcategoryName || p.subcategoryname?.toLowerCase() === subcategoryName.toLowerCase();
+        !subcategoryName ||
+        p.subcategoryname?.toLowerCase() === subcategoryName.toLowerCase();
 
+      // Universal search: productName, categoryname, subcategoryname
       const inSearch =
         !query ||
         p.productName?.toLowerCase().includes(query) ||
@@ -54,7 +60,11 @@ const CategoryPage = () => {
       <div className="d-flex flex-wrap">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <div key={product._id} className="card m-3" style={{ width: "18rem" }}>
+            <div
+              key={product._id}
+              className="card m-3"
+              style={{ width: "18rem" }}
+            >
               <img
                 src={product.productImage?.[0]?.filepath}
                 className="card-img-top"

@@ -12,6 +12,8 @@ import SuccessPage from "../pages/user/Successpage";
 import Product from "../pages/user/Categories";
 import Cart from "../pages/user/Cart";
 import Wishlist from "../pages/user/Wish";
+import MyAccount from "../pages/user/Myaccount";
+import MyOrders from "../pages/user/Myorders";
 const Endrouter = () => { 
   return (
     <Routes>
@@ -28,6 +30,8 @@ const Endrouter = () => {
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/cart" element={<Cart/>}/>
         <Route path="/wishlist" element={<Wishlist/>}/>
+        <Route path="/myaccount" element={<MyAccount/>}/>
+        <Route path="/myorders" element={<MyOrders/>}/>
       </Route>
     </Routes>
   );

@@ -34,7 +34,7 @@ const Signin = () => {
         dispatch(initiallogin(res.data.data));
 
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("usertype", res.data.usertype);
+        localStorage.setItem("userID", res.data.userID || res.data.userId);
 
         dispatch(showToast({ message: res.data.message, type: "success" }));
 
@@ -118,10 +118,8 @@ const Signin = () => {
                     />
                   </div>
 
-
                   {/* Remember & Forgot */}
                   <div className="d-flex justify-content-between align-items-center mb-3">
-                 
                     <div className="px-1">
                       <input type="checkbox" id="remember" className="me-2" />
                       <label htmlFor="remember" className="small text-muted">
