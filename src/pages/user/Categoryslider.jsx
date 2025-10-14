@@ -7,6 +7,7 @@ import "../../safar_css/user.css";
 
 const CategorySlider = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate()
   const categories = useSelector((state) => state.category.categorylist);
   const subcategories = useSelector(
     (state) => state.subcategory.subcategorylist
@@ -64,6 +65,7 @@ const CategorySlider = () => {
                           <div
                             key={sub.id}
                             className="subcategory-item py-1 text-secondary"
+                            onClick={()=>navigate(`/categories?subcategory=${sub.id}`)}
                           >
                             {sub.name}
                           </div>

@@ -117,75 +117,89 @@ const Product = () => {
   };
 
   return (
-    <Row className="g-4 mx-0">
-      {productList.map((pro, index) => {
-        const { displayPrice, originalPrice } = getPriceDisplay(pro);
-        const isInWishlist =
-          Array.isArray(wishlist) &&
-          wishlist.some((item) => item._id === pro._id);
+  <div className="mx-0">
+    {productList.length === 0 ? (
+      <div className="text-center py-5">
+        <h5 className="text-muted">
+          {subcategoryFilter
+            ? "No subcategory products available"
+            : "No products available"}
+        </h5>
+      </div>
+    ) : (
+      <Row className="g-4 mx-0">
+        {productList.map((pro, index) => {
+          const { displayPrice, originalPrice } = getPriceDisplay(pro);
+          const isInWishlist =
+            Array.isArray(wishlist) &&
+            wishlist.some((item) => item._id === pro._id);
 
-        return (
-          <Col
-            key={index}
-            sm={6}
-            md={4}
-            lg={3}
-            onClick={() => handleShow(pro)}
-            style={{ cursor: "pointer" }}
-          >
-            <Card className="h-100 shadow-sm">
-              <Card.Img
-                variant="top"
-                src={pro.images?.[0]?.filepath || "/no-image.png"}
-                alt={pro.productName}
-                style={{ height: "200px", objectFit: "cover" }}
-              />
-              <Card.Body className="d-flex flex-column">
-                <Card.Title>{pro.productName}</Card.Title>
-                <Card.Text className="text-truncate">
-                  {pro.description}
-                </Card.Text>
+          return (
+            <Col
+              key={index}
+              sm={6}
+              md={4}
+              lg={3}
+              onClick={() => handleShow(pro)}
+              style={{ cursor: "pointer" }}
+            >
+              <Card className="h-100 shadow-sm">
+                <Card.Img
+                  variant="top"
+                  src={pro.images?.[0]?.filepath || "/no-image.png"}
+                  alt={pro.productName}
+                  style={{ height: "200px", objectFit: "cover" }}
+                />
+                <Card.Body className="d-flex flex-column">
+                  <Card.Title>{pro.productName}</Card.Title>
+                  <Card.Text className="text-truncate">
+                    {pro.description}
+                  </Card.Text>
 
-                <div>
-                  {originalPrice ? (
-                    <>
-                      <strong style={{ color: "green" }}>{displayPrice}</strong>{" "}
-                      <span
-                        style={{ textDecoration: "line-through", color: "#888" }}
-                      >
-                        {originalPrice}
-                      </span>{" "}
-                      <span className="ms-1 text-danger">
-                        ({pro.discount}% OFF)
-                      </span>
-                    </>
-                  ) : (
-                    <strong>{displayPrice}</strong>
-                  )}
-                </div>
+                  <div>
+                    {originalPrice ? (
+                      <>
+                        <strong style={{ color: "green" }}>{displayPrice}</strong>{" "}
+                        <span
+                          style={{
+                            textDecoration: "line-through",
+                            color: "#888",
+                          }}
+                        >
+                          {originalPrice}
+                        </span>{" "}
+                        <span className="ms-1 text-danger">
+                          ({pro.discount}% OFF)
+                        </span>
+                      </>
+                    ) : (
+                      <strong>{displayPrice}</strong>
+                    )}
+                  </div>
 
-                <div className="mt-auto d-flex justify-content-between align-items-center">
-                  <small className="text-muted">
-                    Gender: {pro.gender || "Unisex"}
-                  </small>
+                  <div className="mt-auto d-flex justify-content-between align-items-center">
+                    <small className="text-muted">
+                      Gender: {pro.gender || "Unisex"}
+                    </small>
+                    <button
+                      className={`btn btn-sm ${
+                        isInWishlist ? "btn-danger" : "btn-outline-danger"
+                      }`}
+                      onClick={(e) => handleWishlistToggle(pro, e)}
+                    >
+                      {isInWishlist ? "♥" : "♡"}
+                    </button>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        })}
+      </Row>
+    )}
+  </div>
+);
 
-                  {/* ❤️ Wishlist Button */}
-                  <button
-                    className={`btn btn-sm ${
-                      isInWishlist ? "btn-danger" : "btn-outline-danger"
-                    }`}
-                    onClick={(e) => handleWishlistToggle(pro, e)}
-                  >
-                    {isInWishlist ? "♥" : "♡"}
-                  </button>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        );
-      })}
-    </Row>
-  );
 };
 
 export default Product;

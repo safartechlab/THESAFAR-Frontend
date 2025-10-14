@@ -47,16 +47,17 @@ export const getproduct =
   (filters = {}) =>
   async (dispatch) => {
     try {
-      
-      const { category } = filters; 
-      
-      const url = category
-        ? `${Baseurl}product/getallproduct?category=${category}` 
-        : `${Baseurl}product/getallproduct`;
+      const { category, subcategory } = filters;
+
+      let url = `${Baseurl}product/getallproduct`;
+      const queryParams = [];
+      if (category) queryParams.push(`category=${category}`);
+      if (subcategory) queryParams.push(`subcategory=${subcategory}`);
+      if (queryParams.length > 0) url += `?${queryParams.join("&")}`;
 
       const res = await axios.get(url);
-      console.log(res.data);
-      
+      console.log("Fetched Products:", res.data);
+
       dispatch(setproduct(res.data?.data || []));
     } catch (error) {
       console.error("Error fetching products:", error);
