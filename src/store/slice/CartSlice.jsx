@@ -2,30 +2,35 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Baseurl } from "../../baseurl";
 
-// Fetch Cart
+// 🧠 Helper: Get token
+const getAuthHeader = () => {
+  const token = localStorage.getItem("token");
+  return { headers: { Authorization: `Bearer ${token}` } };
+};
+
+// 🛒 Fetch Cart
 export const getCart = createAsyncThunk("cart/getCart", async (_, thunkAPI) => {
   try {
-    const token = localStorage.getItem("token");
-    const res = await axios.get(`${Baseurl}cart/getcart`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get(`${Baseurl}cart/getcart`, getAuthHeader());
     return res.data.items || [];
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
   }
 });
 
-// Add to Cart
+// ➕ Add to Cart
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ productId, sizeId, quantity }, thunkAPI) => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(
-        `${Baseurl}cart/addtocart`,
-        { productId, sizeId, quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // ✅ Ensure proper ID structure
+      const payload = {
+        productId,
+        sizeId: sizeId || null, // highlight change
+        quantity: quantity || 1, // highlight change
+      };
+
+      const res = await axios.post(`${Baseurl}cart/addtocart`, payload, getAuthHeader());
       return res.data.items || [];
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
@@ -33,42 +38,37 @@ export const addToCart = createAsyncThunk(
   }
 );
 
-// Update Quantity
+// 🔁 Update Cart Quantity
 export const updateCartQuantity = createAsyncThunk(
   "cart/updateCartQuantity",
   async ({ productId, sizeId, quantity }, thunkAPI) => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.put(
-        `${Baseurl}cart/updatecart`, // ✅ must match backend route
-        { productId, sizeId, quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // ✅ Always send consistent identifiers
+      const payload = {
+        productId,
+        sizeId: sizeId || null, // highlight change
+        quantity: Math.max(1, quantity), // highlight change (no zero qty)
+      };
+
+      const res = await axios.put(`${Baseurl}cart/updatecart`, payload, getAuthHeader());
       return res.data.items || [];
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || error.message
-      );
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-// Remove from Cart (fixed with product name)
+// ❌ Remove from Cart
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async ({ cartItemId, productName }, thunkAPI) => {
     try {
       if (!cartItemId) throw new Error("Invalid cart item ID");
 
-      const token = localStorage.getItem("token");
-      await axios.delete(`${Baseurl}cart/removecart/${cartItemId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${Baseurl}cart/removecart/${cartItemId}`, getAuthHeader());
 
-      // Return updated cart
-      const updatedRes = await axios.get(`${Baseurl}cart/getcart`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // ✅ Re-fetch updated cart after removal
+      const updatedRes = await axios.get(`${Baseurl}cart/getcart`, getAuthHeader());
 
       return { items: updatedRes.data.items || [], removedProduct: productName };
     } catch (error) {
@@ -77,18 +77,19 @@ export const removeFromCart = createAsyncThunk(
   }
 );
 
+// 🧩 Cart Slice
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
     cartlist: [],
     loading: false,
     error: null,
-    removedProduct: null, // store name of removed product
+    removedProduct: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Get Cart
+      // --- Get Cart ---
       .addCase(getCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -101,7 +102,8 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Add to Cart
+
+      // --- Add to Cart ---
       .addCase(addToCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -114,12 +116,14 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Update Quantity
+
+      // --- Update Quantity ---
       .addCase(updateCartQuantity.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateCartQuantity.fulfilled, (state, action) => {
+        // ✅ Immediately update cart UI
         state.cartlist = action.payload;
         state.loading = false;
       })
@@ -127,7 +131,8 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Remove from Cart
+
+      // --- Remove from Cart ---
       .addCase(removeFromCart.pending, (state) => {
         state.loading = true;
         state.error = null;

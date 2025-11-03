@@ -9,11 +9,16 @@ import Addsize from "../pages/admin/size/Addsize"
 import Order from "../pages/admin/Order"
 import UpdateProduct from "../pages/admin/Product/updateproduct"
 import Addbanner from "../pages/admin/Banner/Addbanner"
+// import { AdminProtectroute } from "../uitility/protected"
 const AdminRoutes =() =>{
     return(
         <>
             <Routes>
-                <Route path="/admin" element={<Adminlayout/>}>
+                <Route path="/admin" element={
+                    // <AdminProtectroute>
+                    <Adminlayout/>
+                    // </AdminProtectroute>
+                    }>
                     <Route index element={<Dashboard/>}/>
                     <Route path="/admin/Addproduct" element={<Addproduct/>} />
                     <Route path="/admin/Getproduct" element={<Getproduct/>} />
