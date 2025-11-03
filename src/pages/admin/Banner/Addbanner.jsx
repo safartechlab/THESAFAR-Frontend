@@ -69,7 +69,7 @@ const AddBanner = () => {
 
     try {
       setUploading(true);
-      const response = await axios.post(
+      const response = await axios.post(  
         `${Baseurl}banner/addbanner`,
         formData,
         {
@@ -276,7 +276,7 @@ const AddBanner = () => {
                   {banner.bannerimage?.map((img, index) => (
                     <img
                       key={index}
-                      src={img.filepath} // ✅ Use direct URL
+                      src={img.filepath || img.secure_url || img.url} // ✅ Use direct URL
                       alt={img.filename || "Banner"}
                       style={{
                         width: "120px",

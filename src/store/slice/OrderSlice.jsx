@@ -1,6 +1,71 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Baseurl } from "../../baseurl";
+
+// 🧾 Fetch all orders (Admin)
+export const getAllOrders = createAsyncThunk(
+  "order/getAllOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Unauthorized: Token not found");
+
+      const res = await axios.get(`${Baseurl}order/getallorders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      return res.data.orders || [];
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// 👤 Fetch orders for logged-in user
+export const getUserOrders = createAsyncThunk(
+  "order/getUserOrders",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const userID = localStorage.getItem("userID");
+
+      if (!token || !userID) throw new Error("User not authenticated");
+
+      const res = await axios.get(`${Baseurl}order/userorders/${userID}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      return res.data.orders || [];
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// ✏️ Update order status (Admin)
+export const updateOrderStatus = createAsyncThunk(
+  "order/updateOrderStatus",
+  async ({ orderId, status }, { rejectWithValue, dispatch }) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Unauthorized: Token not found");
+
+      const res = await axios.put(
+        `${Baseurl}order/status/${orderId}`,
+        { status },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // ✅ Refresh order list after update
+      dispatch(getAllOrders());
+      return res.data; // return updated order
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
 
 const OrderSlice = createSlice({
   name: "order",
@@ -10,41 +75,51 @@ const OrderSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {
-    setorder: (state, action) => {
-      state.orderlist = action.payload;
-      state.loading = false;
-      state.error = null;
-    },
-    setorderupdate: (state, action) => {
-      state.orderupdate = action.payload;
-    },
-    setLoading: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    setError: (state, action) => {
-      state.error = action.payload;
-      state.loading = false;
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // 🧾 Get all orders
+      .addCase(getAllOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orderlist = action.payload;
+      })
+      .addCase(getAllOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // 👤 Get user orders
+      .addCase(getUserOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getUserOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orderlist = action.payload;
+      })
+      .addCase(getUserOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // ✏️ Update order status
+      .addCase(updateOrderStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orderupdate = action.payload;
+      })
+      .addCase(updateOrderStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-export const { setorder, setorderupdate, setLoading, setError } = OrderSlice.actions;
 export default OrderSlice.reducer;
-
-export const getorder = () => async (dispatch) => {
-  try {
-    dispatch(setLoading());
-     const token = localStorage.getItem("token");
-    const res = await axios.get(`${Baseurl}order/getallorders`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    dispatch(setorder(res.data));
-  } catch (error) {
-    console.error(error);
-    dispatch(setError(error.message || "Failed to fetch orders"));
-  }
-};
