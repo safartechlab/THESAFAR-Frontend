@@ -18,33 +18,39 @@ const BootstrapGridBanner = () => {
     fetchSlides();
   }, []);
 
-  if (slides.length < 3) return null;
+  if (!slides.length) return null;
 
   return (
     <div className="container-fluid my-2 p-5">
       <div className="row">
         <div className="col-md-6">
-          <img
-            src={slides[0].bannerimage[0]?.filepath}
-            alt={slides[0].title || "slide"}
-            className="img-fluid w-100"
-            style={{ height: "500px", objectFit: "contain" }}
-          />
+          {slides[0] && (
+            <img
+              src={slides[0].bannerimage[0]?.filepath}
+              alt={slides[0].title || "banner"}
+              className="img-fluid w-100"
+              style={{ height: "500px", objectFit: "contain" }}
+            />
+          )}
         </div>
 
         <div className="col-md-6 d-flex flex-column gap-3">
-          <img
-            src={slides[1].bannerimage[0]?.filepath}
-            alt={slides[1].title || "slide"}
-            className="img-fluid w-100"
-            style={{ height: "245px", objectFit: "contain" }}
-          />
-          <img
-            src={slides[2].bannerimage[0]?.filepath}
-            alt={slides[2].title || "slide"}
-            className="img-fluid w-100"
-            style={{ height: "245px", objectFit: "contain" }}
-          />
+          {slides[1] && (
+            <img
+              src={slides[1].bannerimage[0]?.filepath}
+              alt={slides[1].title || "banner"}
+              className="img-fluid w-100"
+              style={{ height: "245px", objectFit: "contain" }}
+            />
+          )}
+          {slides[2] && (
+            <img
+              src={slides[2].bannerimage[0]?.filepath}
+              alt={slides[2].title || "banner"}
+              className="img-fluid w-100"
+              style={{ height: "245px", objectFit: "contain" }}
+            />
+          )}
         </div>
       </div>
     </div>
