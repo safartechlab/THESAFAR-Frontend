@@ -17,7 +17,7 @@ const Cart = () => {
     dispatch(getCart());
   }, [dispatch]);
 
-  // Calculate total price
+  // ✅ Calculate total price
   const total = Array.isArray(cartlist)
     ? cartlist.reduce((sum, item) => {
         const price =
@@ -30,60 +30,61 @@ const Cart = () => {
       }, 0)
     : 0;
 
-  // Calculate total quantity
+  // ✅ Calculate total items
   const totalItems = Array.isArray(cartlist)
     ? cartlist.reduce((sum, item) => sum + (item.quantity || 1), 0)
     : 0;
 
-  // Handle remove item
+  // ✅ Handle remove
   const handleDelete = async (cartItem) => {
-  try {
-    const cartItemId = cartItem?._id;
-    const productName =
-      cartItem.productName || cartItem.product?.productName || "Unknown product";
+    try {
+      const cartItemId = cartItem?._id;
+      const productName =
+        cartItem.productName || cartItem.product?.productName || "Unknown product";
 
-    if (!cartItemId) throw new Error("Invalid cart item ID");
+      if (!cartItemId) throw new Error("Invalid cart item ID");
 
-    setActionLoading(true);
+      setActionLoading(true);
 
-    const resultAction = await dispatch(
-      removeFromCart({ cartItemId, productName }) // ✅ fix — pass an object
-    );
+      const resultAction = await dispatch(
+        removeFromCart({ cartItemId, productName })
+      );
 
-    if (removeFromCart.fulfilled.match(resultAction)) {
+      if (removeFromCart.fulfilled.match(resultAction)) {
+        dispatch(
+          showToast({
+            message: `${productName} removed from cart`,
+            type: "success",
+          })
+        );
+      } else {
+        throw new Error(resultAction.payload || "Failed to remove item");
+      }
+    } catch (err) {
       dispatch(
         showToast({
-          message: `${productName} removed from cart`,
-          type: "success",
+          message: err.message || "Something went wrong",
+          type: "error",
         })
       );
-    } else {
-      throw new Error(resultAction.payload || "Failed to remove item");
+    } finally {
+      setActionLoading(false);
     }
-  } catch (err) {
-    dispatch(
-      showToast({
-        message: err.message || "Something went wrong",
-        type: "error",
-      })
-    );
-  } finally {
-    setActionLoading(false);
-  }
-};
-;
+  };
 
-  // Handle quantity change
-  const handleUpdateQuantity = async (cartItem, change) => {
+  // ✅ Handle quantity update (prevent reload)
+  const handleUpdateQuantity = async (e, cartItem, change) => {
+    e.preventDefault(); // ✅ stops page reload
+
     try {
-      setActionLoading(true);
       const newQuantity = (cartItem.quantity || 1) + change;
       if (newQuantity < 1) return;
 
+      setActionLoading(true);
+
       const resultAction = await dispatch(
         updateCartQuantity({
-          productId: cartItem.productId || cartItem.product?._id,
-          sizeId: cartItem.size || null,
+          cartItemId: cartItem._id,
           quantity: newQuantity,
         })
       );
@@ -92,7 +93,6 @@ const Cart = () => {
         throw new Error(resultAction.payload || "Failed to update quantity");
       }
     } catch (err) {
-      console.error(err);
       dispatch(
         showToast({
           message: err.message || "Something went wrong",
@@ -133,7 +133,7 @@ const Cart = () => {
       <h3 className="mb-4 text-center">Your Cart</h3>
 
       <div className="row">
-        {/* Cart Items */}
+        {/* ✅ Cart Items */}
         <div className="col-lg-8">
           {cartlist.map((item) => {
             const originalPrice = item.product?.price ?? item.price ?? 0;
@@ -182,16 +182,18 @@ const Cart = () => {
                       <div className="d-flex align-items-center mb-1">
                         <span className="me-2">Quantity:</span>
                         <button
+                          type="button"
                           className="btn btn-outline-secondary btn-sm me-1"
-                          onClick={() => handleUpdateQuantity(item, -1)}
+                          onClick={(e) => handleUpdateQuantity(e, item, -1)}
                           disabled={actionLoading || item.quantity <= 1}
                         >
                           -
                         </button>
                         <span className="mx-1">{item.quantity || 1}</span>
                         <button
+                          type="button"
                           className="btn btn-outline-secondary btn-sm ms-1"
-                          onClick={() => handleUpdateQuantity(item, 1)}
+                          onClick={(e) => handleUpdateQuantity(e, item, 1)}
                           disabled={actionLoading}
                         >
                           +
@@ -219,9 +221,10 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  {/* Remove Button */}
+                  {/* Remove */}
                   <div className="col-md-3 text-end pe-4">
                     <button
+                      type="button"
                       className="btn btn-outline-danger btn-sm"
                       onClick={() => handleDelete(item)}
                       disabled={actionLoading}
@@ -235,7 +238,7 @@ const Cart = () => {
           })}
         </div>
 
-        {/* Cart Summary */}
+        {/* ✅ Summary */}
         <div className="col-lg-4">
           <div className="card p-3 shadow-sm border-0">
             <h5>Cart Summary</h5>
