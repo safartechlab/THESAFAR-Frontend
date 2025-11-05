@@ -31,12 +31,28 @@ const Cart = () => {
       }, 0)
     : 0;
 
+<<<<<<< HEAD
   // ✅ Calculate total quantity
+=======
+  // ✅ Calculate total items
+>>>>>>> 566cd905ae8247916a6cb4facba728c89a46caa4
   const totalItems = Array.isArray(cartlist)
     ? cartlist.reduce((sum, item) => sum + (item.quantity || 1), 0)
     : 0;
 
+<<<<<<< HEAD
   // ✅ Handle item removal
+  const handleDelete = async (cartItem) => {
+    try {
+      const cartItemId = cartItem?._id;
+      const productName =
+        cartItem.productName || cartItem.product?.productName || "Unknown product";
+
+      if (!cartItemId) throw new Error("Invalid cart item ID");
+
+      setActionLoading(true);
+=======
+  // ✅ Handle remove
   const handleDelete = async (cartItem) => {
     try {
       const cartItemId = cartItem?._id;
@@ -49,6 +65,50 @@ const Cart = () => {
 
       const resultAction = await dispatch(
         removeFromCart({ cartItemId, productName })
+      );
+
+      if (removeFromCart.fulfilled.match(resultAction)) {
+        dispatch(
+          showToast({
+            message: `${productName} removed from cart`,
+            type: "success",
+          })
+        );
+      } else {
+        throw new Error(resultAction.payload || "Failed to remove item");
+      }
+    } catch (err) {
+      dispatch(
+        showToast({
+          message: err.message || "Something went wrong",
+          type: "error",
+        })
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // ✅ Handle quantity update (prevent reload)
+  const handleUpdateQuantity = async (e, cartItem, change) => {
+    e.preventDefault(); // ✅ stops page reload
+
+    try {
+      const newQuantity = (cartItem.quantity || 1) + change;
+      if (newQuantity < 1) return;
+>>>>>>> 566cd905ae8247916a6cb4facba728c89a46caa4
+
+      setActionLoading(true);
+
+      const resultAction = await dispatch(
+<<<<<<< HEAD
+        removeFromCart({ cartItemId, productName })
+=======
+        updateCartQuantity({
+          cartItemId: cartItem._id,
+          quantity: newQuantity,
+        })
+>>>>>>> 566cd905ae8247916a6cb4facba728c89a46caa4
       );
 
       if (removeFromCart.fulfilled.match(resultAction)) {
@@ -155,7 +215,7 @@ const handleUpdateQuantity = async (cartItem, change) => {
       <h3 className="mb-4 text-center">Your Cart</h3>
 
       <div className="row">
-        {/* Cart Items */}
+        {/* ✅ Cart Items */}
         <div className="col-lg-8">
           {cartlist.map((item) => {
             const originalPrice = item.product?.price ?? item.price ?? 0;
@@ -214,8 +274,9 @@ const handleUpdateQuantity = async (cartItem, change) => {
                       <div className="d-flex align-items-center mb-2">
                         <span className="me-2">Quantity:</span>
                         <button
+                          type="button"
                           className="btn btn-outline-secondary btn-sm me-1"
-                          onClick={() => handleUpdateQuantity(item, -1)}
+                          onClick={(e) => handleUpdateQuantity(e, item, -1)}
                           disabled={actionLoading || item.quantity <= 1}
                         >
                           -
@@ -224,8 +285,9 @@ const handleUpdateQuantity = async (cartItem, change) => {
                           {item.quantity || 1}
                         </span>
                         <button
+                          type="button"
                           className="btn btn-outline-secondary btn-sm ms-1"
-                          onClick={() => handleUpdateQuantity(item, 1)}
+                          onClick={(e) => handleUpdateQuantity(e, item, 1)}
                           disabled={actionLoading}
                         >
                           +
@@ -254,9 +316,10 @@ const handleUpdateQuantity = async (cartItem, change) => {
                     </div>
                   </div>
 
-                  {/* Remove Button */}
+                  {/* Remove */}
                   <div className="col-md-3 text-end pe-4">
                     <button
+                      type="button"
                       className="btn btn-outline-danger btn-sm"
                       onClick={() => handleDelete(item)}
                       disabled={actionLoading}
@@ -270,7 +333,11 @@ const handleUpdateQuantity = async (cartItem, change) => {
           })}
         </div>
 
+<<<<<<< HEAD
         {/* ✅ Cart Summary */}
+=======
+        {/* ✅ Summary */}
+>>>>>>> 566cd905ae8247916a6cb4facba728c89a46caa4
         <div className="col-lg-4">
           <div className="card p-3 shadow-sm border-0">
             <h5>Cart Summary</h5>
