@@ -5,7 +5,10 @@ import { Baseurl } from "../../baseurl";
 // 🧾 Fetch Cart
 export const getCart = createAsyncThunk("cart/getCart", async (_, thunkAPI) => {
   try {
-    const res = await axios.get(`${Baseurl}cart/getcart`, getAuthHeader());
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${Baseurl}cart/getcart`, {
+      headers: { Authorization:` Bearer ${token} `},
+    });
     return res.data.items || [];
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
@@ -17,14 +20,12 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ productId, sizeId, quantity }, thunkAPI) => {
     try {
-      // ✅ Ensure proper ID structure
-      const payload = {
-        productId,
-        sizeId: sizeId || null, // highlight change
-        quantity: quantity || 1, // highlight change
-      };
-
-      const res = await axios.post(`${Baseurl}cart/addtocart`, payload, getAuthHeader());
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `${Baseurl}cart/addtocart`,
+        { productId, sizeId, quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       return res.data.items || [];
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
@@ -69,7 +70,6 @@ export const removeFromCart = createAsyncThunk(
   }
 );
 
-// 🧩 Cart Slice
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
@@ -97,7 +97,6 @@ const cartSlice = createSlice({
         state.cartlist = action.payload;
       })
       .addCase(updateCartQuantity.fulfilled, (state, action) => {
-        // ✅ Immediately update cart UI
         state.cartlist = action.payload;
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
