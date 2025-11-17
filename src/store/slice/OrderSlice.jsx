@@ -10,7 +10,7 @@ export const getAllOrders = createAsyncThunk(
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Unauthorized: Token not found");
 
-      const res = await axios.get(`${Baseurl}order/getallorders`, {
+      const res = await axios.get(`${Baseurl}order/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -27,11 +27,9 @@ export const getUserOrders = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const userID = localStorage.getItem("userID");
+      if (!token) throw new Error("User not authenticated");
 
-      if (!token || !userID) throw new Error("User not authenticated");
-
-      const res = await axios.get(`${Baseurl}order/userorders/${userID}`, {
+      const res = await axios.get(`${Baseurl}order/myorders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -58,9 +56,10 @@ export const updateOrderStatus = createAsyncThunk(
         }
       );
 
-      // ✅ Refresh order list after update
+      // refresh list
       dispatch(getAllOrders());
-      return res.data; // return updated order
+
+      return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
     }
@@ -78,7 +77,6 @@ const OrderSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // 🧾 Get all orders
       .addCase(getAllOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -92,7 +90,6 @@ const OrderSlice = createSlice({
         state.error = action.payload;
       })
 
-      // 👤 Get user orders
       .addCase(getUserOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -106,7 +103,6 @@ const OrderSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ✏️ Update order status
       .addCase(updateOrderStatus.pending, (state) => {
         state.loading = true;
         state.error = null;

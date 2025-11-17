@@ -50,10 +50,14 @@ const Dashboard = () => {
       total = 0;
 
     orderlist.forEach((order) => {
-      if (!order.isPaid) return; // count only paid orders
+      // Only count paid orders
+      if (order.paymentStatus !== "Paid") return;
+
       const date = new Date(order.createdAt);
       const revenue = order.totalPrice || 0;
+
       total += revenue;
+
       if (date >= startOfDay) daily += revenue;
       if (date >= startOfWeek) weekly += revenue;
       if (date >= startOfMonth) monthly += revenue;

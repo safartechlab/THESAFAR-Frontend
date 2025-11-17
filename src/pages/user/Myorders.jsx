@@ -9,44 +9,37 @@ const MyOrders = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("token");
-      const userID = localStorage.getItem("userID");
-      if (!token || !userID) throw new Error("Not authenticated");
+      if (!token) throw new Error("Not authenticated");
 
-      const res = await axios.get(`${Baseurl}order/userorders/${userID}`, {
+      // ✅ Correct backend route
+      const res = await axios.get(`${Baseurl}order/myorders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setOrders(res.data.orders || []);
-      setLoading(false);
     } catch (err) {
       console.error("Error fetching orders:", err);
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchOrders();
-  }, []);
-
-  useEffect(() => {
     const interval = setInterval(fetchOrders, 10000);
     return () => clearInterval(interval);
   }, []);
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case "Received":
-        return { background: "#fff3cd", color: "#856404" };
       case "Confirmed":
         return { background: "#cce5ff", color: "#004085" };
-      case "Rejected":
-        return { background: "#f8d7da", color: "#721c24" };
-      case "Shipped":
-        return { background: "#d1ecf1", color: "#0c5460" };
       case "Delivered":
         return { background: "#d4edda", color: "#155724" };
       case "Cancelled":
-        return { background: "#f5c6cb", color: "#721c24" };
+        return { background: "#f8d7da", color: "#721c24" };
+      case "Paid":
+        return { background: "#d4edda", color: "#155724" };
       default:
         return { background: "#f8f9fa", color: "#6c757d" };
     }
@@ -61,9 +54,6 @@ const MyOrders = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.status === 403) {
-        return alert("Invoice available only after payment confirmation.");
-      }
       if (!res.ok) throw new Error("Failed to load invoice");
 
       const blob = await res.blob();
@@ -78,7 +68,7 @@ const MyOrders = () => {
   if (loading)
     return (
       <div style={{ textAlign: "center", marginTop: "50px" }}>
-        Loading orders...
+        Loading your orders...
       </div>
     );
 
@@ -103,13 +93,7 @@ const MyOrders = () => {
         My Orders
       </h2>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "25px",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
         {orders.map((order) => (
           <div
             key={order._id}
@@ -118,7 +102,6 @@ const MyOrders = () => {
               backgroundColor: "#fff",
               boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
               overflow: "hidden",
-              transition: "transform 0.2s ease, box-shadow 0.2s ease",
             }}
           >
             {/* Header */}
@@ -135,6 +118,8 @@ const MyOrders = () => {
               <h3 style={{ margin: 0, color: "#333", fontSize: "18px" }}>
                 Order #{order.orderNumber || order._id.slice(-6)}
               </h3>
+
+              {/* ❗ Correct field: order.status */}
               <span
                 style={{
                   ...getStatusStyle(order.status),
@@ -144,12 +129,13 @@ const MyOrders = () => {
                   fontSize: "14px",
                 }}
               >
-                {order.status}
+                {order.status || "Processing"}
               </span>
             </div>
 
             {/* Body */}
             <div style={{ padding: "20px 25px" }}>
+              {/* Address */}
               <div
                 style={{
                   marginBottom: "15px",
@@ -160,52 +146,89 @@ const MyOrders = () => {
                 <h4 style={{ marginBottom: "6px", color: "#555" }}>
                   Shipping Address
                 </h4>
-                <p style={{ margin: 0, color: "#666" }}>
-                  {order.shippingAddress?.houseno}, {order.shippingAddress?.street},{" "}
-                  {order.shippingAddress?.landmark}
-                </p>
-                <p style={{ margin: 0, color: "#666" }}>
-                  {order.shippingAddress?.city}, {order.shippingAddress?.state} -{" "}
-                  {order.shippingAddress?.pincode}, {order.shippingAddress?.country}
-                </p>
+
+                {order.shippingAddress ? (
+                  <>
+                    <p style={{ margin: 0, color: "#666" }}>
+                      {order.shippingAddress.name},{" "}
+                      {order.shippingAddress.houseno},{" "}
+                      {order.shippingAddress.street}
+                    </p>
+
+                    <p style={{ margin: 0, color: "#666" }}>
+                      {order.shippingAddress.city} -{" "}
+                      {order.shippingAddress.pincode},{" "}
+                      {order.shippingAddress.state},{" "}
+                      {order.shippingAddress.country}
+                    </p>
+
+                    <p style={{ margin: 0, color: "#666" }}>
+                      Phone: {order.shippingAddress.phone}
+                    </p>
+                  </>
+                ) : (
+                  <p style={{ color: "#999" }}>No address available</p>
+                )}
               </div>
 
+              {/* Items */}
               <div>
                 <h4 style={{ marginBottom: "10px", color: "#555" }}>Items</h4>
-                {order.items.map((item) => (
-                  <div
-                    key={item._id}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "20px",
-                      marginBottom: "15px",
-                      borderBottom: "1px solid #eee",
-                      paddingBottom: "10px",
-                    }}
-                  >
-                    <img
-                      src={item.product?.images[0]?.filepath}
-                      alt={item.productName}
+
+                {order.items?.length ? (
+                  order.items.map((item, idx) => (
+                    <div
+                      key={idx}
                       style={{
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "10px",
-                        objectFit: "cover",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "20px",
+                        marginBottom: "15px",
+                        borderBottom: "1px solid #eee",
+                        paddingBottom: "10px",
                       }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontWeight: "600", margin: "0 0 3px", color: "#333" }}>
-                        {item.productName}
-                      </p>
-                      <p style={{ margin: 0, color: "#777" }}>Size: {item.sizeName}</p>
-                      <p style={{ margin: 0, color: "#777" }}>Qty: {item.quantity}</p>
-                      <p style={{ margin: 0, fontWeight: "600", color: "#222" }}>
-                        ₹{item.price}
-                      </p>
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.productName}
+                        style={{
+                          width: "80px",
+                          height: "80px",
+                          borderRadius: "10px",
+                          objectFit: "cover",
+                        }}
+                      />
+
+                      <div style={{ flex: 1 }}>
+                        <p
+                          style={{
+                            fontWeight: "600",
+                            margin: "0 0 3px",
+                            color: "#333",
+                          }}
+                        >
+                          {item.productName}
+                        </p>
+
+                        <p style={{ margin: 0, color: "#777" }}>
+                          Qty: {item.quantity}
+                        </p>
+
+                        <p
+                          style={{
+                            margin: 0,
+                            fontWeight: "600",
+                            color: "#222",
+                          }}
+                        >
+                          ₹{item.price}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p style={{ color: "#777" }}>No items found.</p>
+                )}
               </div>
             </div>
 
@@ -221,12 +244,12 @@ const MyOrders = () => {
                 fontWeight: "600",
               }}
             >
-              <p style={{ margin: "5px 0" }}>Subtotal: ₹{order.subtotal}</p>
-              <p style={{ margin: "5px 0" }}>Total: ₹{order.totalPrice}</p>
-              <p style={{ margin: "5px 0" }}>Payment: {order.paymentMethod}</p>
-              <p style={{ margin: "5px 0" }}>Paid: {order.isPaid ? "Yes" : "No"}</p>
+              <p>Subtotal: ₹{order.totalPrice}</p>
+              <p>Payment: {order.paymentMethod || "N/A"}</p>
+              <p>Paid: {order.paymentStatus === "Paid" ? "Yes" : "No"}</p>
 
-              {order.isPaid && (
+              {/* Show only when paid */}
+              {order.paymentStatus === "Paid" && (
                 <button
                   onClick={() => handleViewInvoice(order._id)}
                   style={{
@@ -236,10 +259,7 @@ const MyOrders = () => {
                     color: "#fff",
                     borderRadius: "8px",
                     cursor: "pointer",
-                    transition: "background 0.2s ease",
                   }}
-                  onMouseOver={(e) => (e.target.style.background = "#0056b3")}
-                  onMouseOut={(e) => (e.target.style.background = "#007bff")}
                 >
                   🧾 View Invoice
                 </button>

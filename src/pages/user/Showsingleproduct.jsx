@@ -68,24 +68,42 @@ const Singleproduct = () => {
         return;
       }
 
+      // ✅ Ensure a size is selected if the product has size options
+      if (singlepro.sizes?.length > 0 && !selectedSize) {
+        dispatch(
+          showToast({ message: "Please select a size", type: "warning" })
+        );
+        return;
+      }
+
+      // ✅ Find the selected size object (to get its ID and prices)
       const selectedSizeObj = singlepro.sizes?.find(
         (s) => s.size.size === selectedSize
       );
 
+      // ✅ Build payload properly
       const payload = {
         productId: singlepro._id,
         sizeId: selectedSizeObj?._id || null,
+        size: selectedSizeObj?.size?.size || selectedSize || null,
         quantity,
         price: selectedSizeObj?.price || singlepro.price,
-        discountedPrice: selectedSizeObj?.discountedPrice || singlepro.discountedPrice,
+        discountedPrice:
+          selectedSizeObj?.discountedPrice ||
+          singlepro.discountedPrice ||
+          selectedSizeObj?.price ||
+          singlepro.price,
       };
 
+      // ✅ Dispatch addToCart
       const resultAction = await dispatch(addToCart(payload));
 
       if (addToCart.fulfilled.match(resultAction)) {
         dispatch(showToast({ message: "Added to cart!", type: "success" }));
       } else {
-        dispatch(showToast({ message: "Failed to add to cart", type: "error" }));
+        dispatch(
+          showToast({ message: "Failed to add to cart", type: "error" })
+        );
       }
     } catch (error) {
       console.error(error);
@@ -110,7 +128,10 @@ const Singleproduct = () => {
                 objectFit: "cover",
                 cursor: "pointer",
                 marginBottom: "8px",
-                border: selectedImage === img.filepath ? "2px solid #a020f0" : "1px solid #ddd",
+                border:
+                  selectedImage === img.filepath
+                    ? "2px solid #a020f0"
+                    : "1px solid #ddd",
               }}
             />
           ))}
@@ -121,7 +142,11 @@ const Singleproduct = () => {
             src={selectedImage || "/no-image.png"}
             alt={singlepro.productName}
             fluid
-            style={{ maxHeight: "500px", objectFit: "contain", borderRadius: "10px" }}
+            style={{
+              maxHeight: "500px",
+              objectFit: "contain",
+              borderRadius: "10px",
+            }}
           />
         </div>
       </Col>
@@ -133,14 +158,23 @@ const Singleproduct = () => {
 
         {/* Price */}
         <div className="mb-3">
-          <h4 className="text-success mb-0">{formatPrice(selectedPrice || singlepro.price)}</h4>
+          <h4 className="text-success mb-0">
+            {formatPrice(selectedPrice || singlepro.price)}
+          </h4>
           {originalPrice && selectedPrice < originalPrice && (
             <>
-              <span className="text-decoration-line-through text-secondary" style={{ fontSize: "14px" }}>
+              <span
+                className="text-decoration-line-through text-secondary"
+                style={{ fontSize: "14px" }}
+              >
                 {formatPrice(originalPrice)}
               </span>
               <span className="ms-2 text-danger">
-                ({Math.round(((originalPrice - selectedPrice) / originalPrice) * 100)}% OFF)
+                (
+                {Math.round(
+                  ((originalPrice - selectedPrice) / originalPrice) * 100
+                )}
+                % OFF)
               </span>
             </>
           )}
@@ -154,7 +188,11 @@ const Singleproduct = () => {
               {singlepro.sizes.map((item) => (
                 <Button
                   key={item._id}
-                  variant={selectedSize === item.size.size ? "primary" : "outline-secondary"}
+                  variant={
+                    selectedSize === item.size.size
+                      ? "primary"
+                      : "outline-secondary"
+                  }
                   size="sm"
                   onClick={() => handleSizeClick(item)}
                 >
@@ -168,21 +206,43 @@ const Singleproduct = () => {
         {/* Stock Info */}
         {selectedSize && (
           <small className="text-muted">
-            Stock: {singlepro.sizes.find((s) => s.size.size === selectedSize)?.stock || 0}
+            Stock:{" "}
+            {singlepro.sizes.find((s) => s.size.size === selectedSize)?.stock ||
+              0}
           </small>
         )}
 
         {/* Quantity */}
         <div className="d-flex align-items-center gap-2 mt-3">
           <strong>Quantity:</strong>
-          <Button size="sm" variant="outline-secondary" onClick={() => handleQuantityChange("minus")}>-</Button>
-          <FormControl value={quantity} readOnly style={{ width: "60px", textAlign: "center" }} />
-          <Button size="sm" variant="outline-secondary" onClick={() => handleQuantityChange("plus")}>+</Button>
+          <Button
+            size="sm"
+            variant="outline-secondary"
+            onClick={() => handleQuantityChange("minus")}
+          >
+            -
+          </Button>
+          <FormControl
+            value={quantity}
+            readOnly
+            style={{ width: "60px", textAlign: "center" }}
+          />
+          <Button
+            size="sm"
+            variant="outline-secondary"
+            onClick={() => handleQuantityChange("plus")}
+          >
+            +
+          </Button>
         </div>
 
         {/* Buttons */}
         <div className="d-flex gap-2 mt-4">
-          <Button variant="outline-primary" className="px-4" onClick={handleAddCart}>
+          <Button
+            variant="outline-primary"
+            className="px-4"
+            onClick={handleAddCart}
+          >
             Add to Cart
           </Button>
           <Button variant="primary" className="px-4">
