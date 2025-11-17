@@ -28,14 +28,21 @@ const Product = () => {
   };
 
   // 🟢 Load products + wishlist
-  useEffect(() => {
-    const filters = {};
-    if (categoryFilter) filters.category = categoryFilter;
-    if (subcategoryFilter) filters.subcategory = subcategoryFilter;
+  // 🟢 Load products + wishlist
+useEffect(() => {
+  const filters = {};
 
-    dispatch(getproduct(filters));
-    dispatch(fetchWishlist());
-  }, [dispatch, categoryFilter, subcategoryFilter]);
+  const queryFilter = searchParams.get("query"); // ✅ NEW LINE
+  const categoryFilter = searchParams.get("category");
+  const subcategoryFilter = searchParams.get("subcategory");
+
+  if (categoryFilter) filters.category = categoryFilter;
+  if (subcategoryFilter) filters.subcategory = subcategoryFilter;
+  if (queryFilter) filters.query = queryFilter; // ✅ NEW LINE
+
+  dispatch(getproduct(filters));
+  dispatch(fetchWishlist());
+}, [dispatch, searchParams]); // ✅ simplified dependency (covers all params)
 
   // 🟢 Format price in INR
   const formatPrice = (price) =>

@@ -29,17 +29,21 @@ const Header = () => {
 
   // 🔍 Search handler
   const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      // Use /categories route so CategoryPage can read params
-      navigate(
-        `/categories?query=${encodeURIComponent(
-          searchTerm
-        )}&category=${encodeURIComponent(selectedCategory)}`
-      );
-      setSearchTerm("");
+  e.preventDefault();
+
+  if (searchTerm.trim()) {
+    // Base URL
+    let url = `/categories?query=${encodeURIComponent(searchTerm)}`;
+
+    // Add category only if it's not "All"
+    if (selectedCategory && selectedCategory !== "All") {
+      url += `&category=${encodeURIComponent(selectedCategory)}`;
     }
-  };
+
+    navigate(url);
+    setSearchTerm("");
+  }
+};
 
   // 📂 Handle category change
   const handleCategoryChange = (e) => {

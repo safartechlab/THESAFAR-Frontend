@@ -16,7 +16,7 @@ const getAuthHeaders = () => {
 export const getCart = createAsyncThunk("cart/getCart", async (_, thunkAPI) => {
   try {
     const res = await axios.get(`${Baseurl}cart/getcart`, {
-      headers: getAuthHeaders(),
+      headers: { Authorization: `Bearer ${token}` },
     });
     return res.data.items || [];
   } catch (error) {

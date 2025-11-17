@@ -47,12 +47,15 @@ export const getproduct =
   (filters = {}) =>
   async (dispatch) => {
     try {
-      const { category, subcategory } = filters;
+      const { category, subcategory, query } = filters;
 
       let url = `${Baseurl}product/getallproduct`;
       const queryParams = [];
-      if (category) queryParams.push(`category=${category}`);
-      if (subcategory) queryParams.push(`subcategory=${subcategory}`);
+
+      if (category) queryParams.push(`category=${encodeURIComponent(category)}`);
+      if (subcategory) queryParams.push(`subcategory=${encodeURIComponent(subcategory)}`);
+      if (query) queryParams.push(`query=${encodeURIComponent(query)}`);
+
       if (queryParams.length > 0) url += `?${queryParams.join("&")}`;
 
       const res = await axios.get(url);
