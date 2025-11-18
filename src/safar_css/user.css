@@ -1,7 +1,12 @@
+/* ================================
+   SLICK SLIDER
+================================ */
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
 
-/* Category Tags (Horizontal Scroll) */
+/* ================================
+   CATEGORY TAGS
+================================ */
 .category-tags {
   display: flex;
   flex-wrap: nowrap;
@@ -9,28 +14,23 @@
   scrollbar-width: thin;
   -ms-overflow-style: none;
 }
-
 .category-tags::-webkit-scrollbar {
   height: 6px;
 }
 
-/* Category Item */
 .category-item {
-  position: relative; /* for dropdowns */
-  cursor: pointer;
+  position: relative;
   padding: 0.5rem 0;
-  transition: all 0.3s ease;
+  cursor: pointer;
   font-size: 15px;
-  white-space: nowrap;
   font-weight: 500;
+  white-space: nowrap;
+  transition: 0.3s ease;
 }
-
-/* Category Name Hover Effect */
 .category-name {
   border-bottom: 2px solid transparent;
-  transition: all 0.2s ease-in;
+  transition: 0.2s ease-in;
 }
-
 .category-item:hover .category-name {
   color: #a200b8;
   border-color: #a200b8;
@@ -41,70 +41,44 @@
   position: absolute;
   top: 100%;
   left: 0;
-  background-color: #fff;
-  z-index: 1000;
-  border-radius: 4px;
   min-width: 200px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 4px;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
 .subcategory-item {
   padding: 5px 10px;
   cursor: pointer;
 }
-
 .subcategory-item:hover {
-  background-color: #f0f0f0;
+  background: #f0f0f0;
 }
 
-/* Category Menu Container */
+/* Category menu wrapper */
 .category-menu-container {
   position: relative;
   z-index: 10;
 }
-
-/* Category Bar Container */
 .category-bar-container {
-  background-color: #fff;
+  background: #fff;
   border-bottom: 1px solid #eee;
-  position: relative;
-  z-index: 1000;
   font-family: 'Poppins', sans-serif;
 }
 
 /* Mega Dropdown */
 .mega-dropdown {
-  top: 100%;
-  left: 0;
   width: 100%;
-  background-color: #fff;
-  animation: fadeIn 0.25s ease-in-out;
+  background: #fff;
   border-top: 2px solid #a200b8;
+  animation: fadeIn 0.25s ease-in-out;
 }
 
-/* Text Colors */
-.text-purple {
-  color: #a200b8;
-}
-
-/* Submenu Items */
-.submenu-item {
-  color: #555;
-  font-size: 14px;
-  transition: color 0.2s;
-}
-
-.submenu-item:hover {
-  color: #0b030c;
-  text-decoration: underline;
-}
-
-/* Menu Link Dividers */
+/* Links */
 .menu-links a {
   position: relative;
   display: inline-block;
 }
-
 .menu-links a:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -114,460 +88,257 @@
   border-right: 1px solid #0d0d0d;
 }
 
-/* Header Divider */
+/* Shared classes */
+.text-purple { color: #a200b8; }
+.submenu-item { color: #555; transition: 0.2s; font-size: 14px; }
+.submenu-item:hover { color: #0b030c; text-decoration: underline; }
+
 .header-divider {
   border-left: 1px solid #0d0d0d;
   height: 30px;
   align-self: center;
 }
 
-/* Service Card Hover */
-.service-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.service-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Icon Wrapper (Map Pin Shape) */
-.icon-wrapper {
-  background-color: var(--textcolor);
-  width: 70px;
-  height: 70px;
-  border-radius: 50% 50% 50% 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.icon-wrapper::after {
-  content: "";
-  position: absolute;
-  bottom: -10px;
-  left: 28px;
-  width: 0;
-  height: 0;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-top: 10px solid var(--textcolor);
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .mega-dropdown {
-    width: 95%;
-    left: 2.5%;
-  }
-
-  .service-card {
-    margin-bottom: 1.5rem;
-  }
-}
-
-
-
-/* ABout us PAge */
-
-
+/* ================================
+   ABOUT PAGE
+================================ */
 .about-container {
   font-family: 'Poppins', sans-serif;
+  background: #fafafa;
   color: #333;
-  background-color: #fafafa;
 }
 
-.about-hero {
+.about-hero,
+.about-banner {
   position: relative;
-  background: url('https://cdn.pixabay.com/photo/2016/11/19/14/00/shopping-1833961_1280.jpg') center/cover no-repeat;
   height: 70vh;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   color: #fff;
+  background-size: cover;
+  background-position: center;
 }
-
-.about-hero .overlay {
+.about-hero .overlay,
+.banner-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0,0,0,0.55);
 }
 
 .hero-content {
   position: relative;
   text-align: center;
-  z-index: 2;
   max-width: 700px;
+  z-index: 2;
 }
-
 .hero-content h1 {
   font-size: 3.5rem;
   font-weight: 800;
 }
-
 .hero-content h1 span {
   color: #45b36b;
 }
-
 .hero-content p {
   margin-top: 1rem;
   font-size: 1.2rem;
   color: #e0e0e0;
 }
+
+/* About intro */
 .about-intro {
   display: flex;
   flex-wrap: wrap;
   gap: 3rem;
-  align-items: center;
-  justify-content: center;
   padding: 5rem 8%;
+  justify-content: center;
+  align-items: center;
 }
-
 .about-text {
   flex: 1;
   min-width: 320px;
 }
-
 .about-text h2 {
   font-size: 2.5rem;
-  color: #222;
   margin-bottom: 1rem;
+  color: #222;
 }
-
 .about-text p {
-  line-height: 1.7;
+  font-size: 1.1rem;
   color: #555;
   margin-bottom: 1rem;
-  font-size: 1.1rem;
+  line-height: 1.7;
 }
 
-.about-image {
-  flex: 1;
-  text-align: center;
-}
-
-.about-image img {
-  max-width: 100%;
-  border-radius: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.5s ease;
-}
-
-.about-image img:hover {
-  transform: scale(1.05);
-}
-
+/* Mission */
 .about-mission {
   text-align: center;
+  padding: 5rem 2rem;
   background: linear-gradient(135deg, #2d8f55, #47c37a);
   color: #fff;
-  padding: 5rem 2rem;
 }
-
-.about-mission h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-}
-
+.about-mission h2 { font-size: 2.5rem; }
 .about-mission p {
   max-width: 700px;
-  margin: 0 auto;
-  font-size: 1.2rem;
+  margin: auto;
   line-height: 1.8;
 }
 
+/* Values */
 .about-values {
-  padding: 5rem 8%;
   text-align: center;
+  padding: 5rem 8%;
 }
-
-.about-values h2 {
-  font-size: 2.5rem;
-  color: #222;
-  margin-bottom: 3rem;
-}
-
 .values-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
-
 .value-card {
   background: #fff;
   padding: 2rem;
   border-radius: 20px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: 0.3s ease;
 }
-
 .value-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
-.value-card .icon {
-  font-size: 2.8rem;
-  margin-bottom: 1rem;
-}
-
-.value-card h3 {
-  font-size: 1.5rem;
-  color: #2d8f55;
-  margin-bottom: 0.5rem;
-}
-
-.about-banner {
-  position: relative;
-  background: url('https://cdn.pixabay.com/photo/2016/03/31/19/56/laptop-1295704_1280.jpg') center/cover no-repeat;
-  height: 60vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-}
-
-.banner-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-}
-
-.banner-content {
-  position: relative;
-  text-align: center;
-  z-index: 2;
-}
-
-.banner-content h2 {
-  font-size: 2.8rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-}
-
-.banner-content p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-}
-
+/* Banner */
+.banner-content { text-align: center; z-index: 2; }
+.banner-content h2 { font-size: 2.8rem; font-weight: 700; }
 .shop-btn {
   display: inline-block;
-  background-color: #45b36b;
-  color: #fff;
+  background: #45b36b;
   padding: 0.9rem 2rem;
   border-radius: 30px;
+  color: white;
   font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  transition: 0.3s ease;
 }
+.shop-btn:hover { background: #2d8f55; transform: scale(1.05); }
 
-.shop-btn:hover {
-  background-color: #2d8f55;
-  transform: scale(1.05);
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .hero-content h1 {
-    font-size: 2.3rem;
-  }
-  .about-intro {
-    flex-direction: column;
-    padding: 3rem 1.5rem;
-  }
-}
-
-
-/* CONTACT US PAGE  */
-
-
+/* ================================
+   CONTACT PAGE
+================================ */
 .contact-container {
   font-family: 'Poppins', sans-serif;
+  background: #fafafa;
   color: #333;
-  background-color: #fafafa;
 }
 
-/* HERO SECTION */
-.contact-hero {
-  position: relative;
-  background: url('https://cdn.pixabay.com/photo/2017/08/06/00/01/shopping-2585148_1280.jpg') center/cover no-repeat;
-  height: 70vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-}
-
-.contact-hero .overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-}
-
-.hero-content {
-  position: relative;
-  text-align: center;
-  z-index: 2;
-}
-
-.hero-content h1 {
-  font-size: 3.5rem;
-  font-weight: 800;
-}
-
-.hero-content h1 span {
-  color: #45b36b;
-}
-
-.hero-content p {
-  margin-top: 1rem;
-  font-size: 1.2rem;
-  color: #e0e0e0;
-}
-
-/* CONTACT SECTION */
 .contact-section {
   display: flex;
   flex-wrap: wrap;
   gap: 4rem;
-  justify-content: center;
-  align-items: flex-start;
   padding: 5rem 8%;
-  background-color: #fff;
+  background: #fff;
+  justify-content: center;
 }
-
 .contact-form {
-  flex: 1;
-  min-width: 350px;
   background: #f8f9fa;
   padding: 2.5rem;
   border-radius: 20px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  flex: 1;
+  min-width: 350px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
-
-.contact-form h2 {
-  color: #2d8f55;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.contact-form p {
-  color: #666;
-  font-size: 1.05rem;
-  margin-bottom: 2rem;
-}
-
-.form-group {
-  margin-bottom: 1.2rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  color: #444;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  border: 1px solid #ccc;
-  padding: 0.8rem 1rem;
-  border-radius: 10px;
-  outline: none;
-  transition: border-color 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  border-color: #45b36b;
-}
-
-.submit-btn {
-  background-color: #45b36b;
-  color: white;
-  font-weight: 600;
-  padding: 0.9rem 2rem;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.submit-btn:hover {
-  background-color: #2d8f55;
-  transform: scale(1.05);
-}
-
-/* CONTACT INFO */
 .contact-info {
   flex: 1;
   min-width: 320px;
 }
 
-.contact-info h2 {
-  color: #222;
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-}
-
 .info-item {
   background: #f5f5f5;
-  border-radius: 15px;
   padding: 1.2rem 1.5rem;
+  border-radius: 15px;
   margin-bottom: 1rem;
   display: flex;
-  align-items: flex-start;
   gap: 1rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  transition: 0.3s;
 }
-
 .info-item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
-.info-item i {
-  color: #45b36b;
-  font-size: 1.5rem;
-  margin-top: 0.3rem;
+/* ================================
+   CHECKOUT PAGE (OPTIMIZED)
+================================ */
+.checkout-page {
+  background: #fafafa;
+  font-family: "Poppins", sans-serif;
 }
 
-/* MAP SECTION */
-.contact-map iframe {
+.checkout-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.checkout-input {
+  border-radius: 10px;
+  padding: 10px;
+  height: 45px;
+}
+
+.summary-item {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  display: flex;
+}
+.summary-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.summary-name {
+  font-weight: 600;
+}
+.summary-size {
+  font-size: 14px;
+  color: #555;
+}
+.summary-price {
+  font-weight: bold;
+  color: #1e3632;
+}
+
+.checkout-pay-btn {
   width: 100%;
-  height: 400px;
-  border: 0;
-  margin-top: -1rem;
+  padding: 12px;
+  background: #1e3632;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: 0.3s;
+}
+.checkout-pay-btn:hover {
+  opacity: 0.9;
 }
 
-/* RESPONSIVE */
+/* ================================
+   ANIMATIONS
+================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
 @media (max-width: 768px) {
-  .hero-content h1 {
-    font-size: 2.4rem;
-  }
-  .contact-section {
-    flex-direction: column;
-    padding: 3rem 1.5rem;
-  }
+  .mega-dropdown { width: 95%; left: 2.5%; }
+  .hero-content h1 { font-size: 2.3rem; }
+  .about-intro { flex-direction: column; padding: 3rem 1.5rem; }
+  .contact-section { padding: 3rem 1.5rem; }
 }
-
-
-
-/* HEADER  */
-

@@ -11,14 +11,40 @@ const getAuthHeaders = () => {
 };
 
 // =========================
+// Helper: Enrich Cart With Product Details
+// =========================
+const enrichCart = async (cartItems) => {
+  return Promise.all(
+    cartItems.map(async (item) => {
+      // safely extract the product ID
+      const productId = item.product?._id || item.product || item.productId;
+
+      if (!productId) {
+        console.error("❌ No product ID found for cart item:", item);
+        return item; // prevent crash
+      }
+
+      const p = await axios.get(`${Baseurl}product/getproduct/${productId}`);
+
+      return {
+        ...item,
+        productDetails: p.data,
+      };
+    })
+  );
+};
+
+// =========================
 // GET CART
 // =========================
 export const getCart = createAsyncThunk("cart/getCart", async (_, thunkAPI) => {
   try {
     const res = await axios.get(`${Baseurl}cart/getcart`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: getAuthHeaders(),
     });
-    return res.data.items || [];
+
+    const enriched = await enrichCart(res.data.items || []);
+    return enriched;
   } catch (error) {
     return thunkAPI.rejectWithValue(
       error.response?.data?.message || "Failed to fetch cart"
@@ -35,15 +61,19 @@ export const addToCart = createAsyncThunk(
     try {
       await axios.post(
         `${Baseurl}cart/addtocart`,
-        { productId, sizeId, size, quantity, price },
-        { headers: getAuthHeaders() }
+        { productId, quantity, sizeId, size, price },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
 
-      const updatedCart = await axios.get(`${Baseurl}cart/getcart`, {
+      const updated = await axios.get(`${Baseurl}cart/getcart`, {
         headers: getAuthHeaders(),
       });
 
-      return updatedCart.data.items || [];
+      return await enrichCart(updated.data.items || []);
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to add to cart"
@@ -53,7 +83,7 @@ export const addToCart = createAsyncThunk(
 );
 
 // =========================
-// UPDATE QUANTITY API CALL
+// UPDATE QUANTITY
 // =========================
 export const updateCartQuantity = createAsyncThunk(
   "cart/updateCartQuantity",
@@ -65,11 +95,11 @@ export const updateCartQuantity = createAsyncThunk(
         { headers: getAuthHeaders() }
       );
 
-      const updatedCart = await axios.get(`${Baseurl}cart/getcart`, {
+      const updated = await axios.get(`${Baseurl}cart/getcart`, {
         headers: getAuthHeaders(),
       });
 
-      return updatedCart.data.items || [];
+      return await enrichCart(updated.data.items || []);
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to update quantity"
@@ -79,7 +109,7 @@ export const updateCartQuantity = createAsyncThunk(
 );
 
 // =========================
-// REMOVE FROM CART
+// REMOVE ITEM
 // =========================
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
@@ -89,12 +119,14 @@ export const removeFromCart = createAsyncThunk(
         headers: getAuthHeaders(),
       });
 
-      const updatedCart = await axios.get(`${Baseurl}cart/getcart`, {
+      const updated = await axios.get(`${Baseurl}cart/getcart`, {
         headers: getAuthHeaders(),
       });
 
+      const enriched = await enrichCart(updated.data.items || []);
+
       return {
-        items: updatedCart.data.items || [],
+        items: enriched,
         removedProduct: productName,
       };
     } catch (error) {
@@ -130,9 +162,9 @@ const cartSlice = createSlice({
   },
 
   reducers: {
-    // -------------------------
-    // 🟢 FRONTEND HELPERS
-    // -------------------------
+    setCart: (state, action) => {
+      state.cartlist = action.payload;
+    },
     incrementQty: (state, action) => {
       const item = state.cartlist.find((i) => i._id === action.payload);
       if (item) item.quantity += 1;
@@ -150,7 +182,6 @@ const cartSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // GET CART
       .addCase(getCart.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -164,28 +195,25 @@ const cartSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ADD
       .addCase(addToCart.fulfilled, (state, action) => {
         state.cartlist = action.payload;
       })
 
-      // UPDATE QTY
       .addCase(updateCartQuantity.fulfilled, (state, action) => {
         state.cartlist = action.payload;
       })
 
-      // REMOVE
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.cartlist = action.payload.items;
         state.removedProduct = action.payload.removedProduct;
       })
 
-      // CLEAR
       .addCase(clearCart.fulfilled, (state) => {
         state.cartlist = [];
       });
   },
 });
 
-export const { incrementQty, decrementQty, clearCartState } = cartSlice.actions;
+export const { incrementQty, decrementQty, clearCartState, setCart } =
+  cartSlice.actions;
 export default cartSlice.reducer;
