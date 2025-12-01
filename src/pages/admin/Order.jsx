@@ -1,10 +1,12 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrders, updateOrderStatus } from "../../store/slice/OrderSlice";
 import Table from "react-bootstrap/Table";
 import Spinner from "react-bootstrap/Spinner";
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
 import { Baseurl } from "../../baseurl";
 import { showToast } from "../../store/slice/toast_slice";
 
@@ -12,12 +14,16 @@ const Getorders = () => {
   const dispatch = useDispatch();
   const { orderlist, loading, error } = useSelector((state) => state.order);
 
-  // ✅ Fetch all orders on mount
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectOrderId, setRejectOrderId] = useState("");
+
+  // Fetch all orders
   useEffect(() => {
     dispatch(getAllOrders());
   }, [dispatch]);
 
-  // ✅ Group orders by status
+  // Order Status Categories
   const statusOrder = [
     "Received",
     "Confirmed",
@@ -34,31 +40,38 @@ const Getorders = () => {
     }, {});
   }, [orderlist]);
 
-  // ✅ Handle status changes
-  const handleStatusChange = async (orderId, newStatus) => {
+  // Handle status change
+  const handleStatusChange = async (orderId, newStatus, reason = "") => {
     try {
       await dispatch(
-        updateOrderStatus({ orderId, status: newStatus })
+        updateOrderStatus({ orderId, status: newStatus, reason })
       ).unwrap();
+
       dispatch(
         showToast({
           type: "success",
-          message: `Order status updated to ${newStatus}`,
+          message: `Order updated to ${newStatus}`,
         })
       );
+
+      if (newStatus === "Rejected") setShowRejectModal(false);
+      setRejectReason("");
     } catch (err) {
-      console.error("❌ Error updating status:", err);
-      dispatch(
-        showToast({ type: "error", message: "Failed to update order status" })
-      );
+      dispatch(showToast({ type: "error", message: "Failed to update order" }));
     }
   };
 
-  // ✅ Handle invoice view/download
+  // Open Reject Modal
+  const openRejectModal = (orderId) => {
+    setRejectOrderId(orderId);
+    setShowRejectModal(true);
+  };
+
+  // Handle Invoice View/Download
   const handleInvoice = async (orderId, type) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return alert("Please log in as admin.");
+      if (!token) return alert("Admin login required.");
 
       const res = await fetch(`${Baseurl}order/invoice/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -75,28 +88,38 @@ const Getorders = () => {
         link.download = `invoice-${orderId}.pdf`;
         link.click();
       }
-
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Error handling invoice:", err);
-      alert("Failed to open/download invoice.");
+      alert("Failed to open or download invoice");
     }
   };
 
-  // 🚦 Conditional buttons based on order status
+  // Action Buttons by status
   const getActionButtons = (order) => {
     const { status, _id } = order;
+
     switch (status) {
       case "Received":
         return (
-          <Button
-            size="sm"
-            variant="success"
-            onClick={() => handleStatusChange(_id, "Confirmed")}
-          >
-            ✅ Confirm
-          </Button>
+          <div className="d-flex gap-1 justify-content-center flex-wrap">
+            <Button
+              size="sm"
+              variant="success"
+              onClick={() => handleStatusChange(_id, "Confirmed")}
+            >
+              ✅ Confirm
+            </Button>
+
+            <Button
+              size="sm"
+              variant="danger"
+              onClick={() => openRejectModal(_id)}
+            >
+              ⚠ Reject
+            </Button>
+          </div>
         );
+
       case "Confirmed":
         return (
           <div className="d-flex gap-1 justify-content-center flex-wrap">
@@ -107,15 +130,17 @@ const Getorders = () => {
             >
               🚚 Ship
             </Button>
+
             <Button
               size="sm"
               variant="danger"
-              onClick={() => handleStatusChange(_id, "Cancelled")}
+              onClick={() => openRejectModal(_id)}
             >
-              ❌ Cancel
+              ⚠ Reject
             </Button>
           </div>
         );
+
       case "Shipped":
         return (
           <div className="d-flex gap-1 justify-content-center flex-wrap">
@@ -126,35 +151,51 @@ const Getorders = () => {
             >
               📦 Deliver
             </Button>
+
             <Button
               size="sm"
               variant="danger"
-              onClick={() => handleStatusChange(_id, "Cancelled")}
+              onClick={() => openRejectModal(_id)}
             >
-              ❌ Cancel
+              ⚠ Reject
             </Button>
           </div>
         );
+
       case "Delivered":
         return <span className="badge bg-success">Delivered</span>;
+
       case "Cancelled":
         return <span className="badge bg-danger">Cancelled</span>;
+
       case "Rejected":
         return <span className="badge bg-secondary">Rejected</span>;
+
       default:
         return null;
     }
   };
 
-  // 🧾 Render table
+  // Format address
+  const formatAddress = (addr) => {
+    if (!addr) return "N/A";
+
+    return [
+      addr.houseno,
+      addr.street,
+      addr.landmark,
+      addr.city,
+      addr.state,
+      addr.pincode,
+      addr.country,
+    ]
+      .filter((x) => x && x.trim() !== "")
+      .join(", ");
+  };
+
+  // Render Table
   const renderTable = (orders) => (
-    <Table
-      striped
-      bordered
-      hover
-      responsive
-      className="text-center align-middle"
-    >
+    <Table striped bordered hover responsive className="text-center align-middle">
       <thead className="table-dark">
         <tr>
           <th>SR.NO</th>
@@ -169,6 +210,7 @@ const Getorders = () => {
           <th>Invoice</th>
         </tr>
       </thead>
+
       <tbody>
         {orders.length > 0 ? (
           orders.map((order, index) => (
@@ -178,19 +220,7 @@ const Getorders = () => {
               <td>{order.items?.map((i) => i.sizeName).join(", ")}</td>
               <td>{order.items?.map((i) => i.quantity).join(", ")}</td>
               <td>{order.user?.username || "N/A"}</td>
-              <td>
-                {order.shippingAddress
-                  ? `${order.shippingAddress.houseno || ""}, ${
-                      order.shippingAddress.street || ""
-                    }, ${order.shippingAddress.landmark || ""}, ${
-                      order.shippingAddress.city || ""
-                    }, ${order.shippingAddress.state || ""}, ${
-                      order.shippingAddress.pincode || ""
-                    }, ${order.shippingAddress.country || ""}`
-                      .replace(/(, )+/g, ", ")
-                      .replace(/^, |, $/g, "")
-                  : "N/A"}
-              </td>
+              <td>{formatAddress(order.shippingAddress)}</td>
               <td>{order.shippingAddress?.phone || "N/A"}</td>
               <td>₹{order.totalPrice}</td>
               <td>{getActionButtons(order)}</td>
@@ -225,7 +255,6 @@ const Getorders = () => {
     </Table>
   );
 
-  // ✅ Conditional rendering
   if (loading)
     return (
       <div className="text-center my-5">
@@ -245,25 +274,49 @@ const Getorders = () => {
     <div className="container my-4">
       <h4 className="fw-bold text-center mb-4">All Orders</h4>
 
-      {/* 📋 Orders grouped by status */}
       {statusOrder.map((status) => (
         <div key={status} className="mb-5">
-          <h5
-            className={`fw-bold mb-3 ${
-              status === "Delivered"
-                ? "text-success"
-                : status === "Cancelled"
-                ? "text-danger"
-                : status === "Received"
-                ? "text-warning"
-                : "text-primary"
-            }`}
-          >
-            {status} Orders ({groupedOrders[status]?.length || 0})
-          </h5>
+          <h5 className="fw-bold mb-3">{status} Orders ({groupedOrders[status]?.length})</h5>
           {renderTable(groupedOrders[status])}
         </div>
       ))}
+
+      {/* Reject Modal */}
+      <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Reject Order</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Reason for Rejection</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Enter reason..."
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRejectModal(false)}>
+            Close
+          </Button>
+          <Button
+            variant="danger"
+            disabled={!rejectReason.trim()}
+            onClick={() =>
+              handleStatusChange(rejectOrderId, "Rejected", rejectReason)
+            }
+          >
+            Reject Order
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

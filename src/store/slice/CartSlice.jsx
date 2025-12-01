@@ -39,19 +39,26 @@ const enrichCart = async (cartItems) => {
 // =========================
 export const getCart = createAsyncThunk("cart/getCart", async (_, thunkAPI) => {
   try {
+    // Make the GET request to fetch the cart
     const res = await axios.get(`${Baseurl}cart/getcart`, {
       headers: getAuthHeaders(),
     });
 
-    const enriched = await enrichCart(res.data.items || []);
+    // Ensure res.data.items is an array
+    const items = Array.isArray(res.data?.items) ? res.data.items : [];
+
+    // Enrich the cart items (add product details, prices, etc.)
+    const enriched = await enrichCart(items);
+
+    // Return the enriched cart
     return enriched;
   } catch (error) {
-    return thunkAPI.rejectWithValue(
-      error.response?.data?.message || "Failed to fetch cart"
-    );
+    // Handle both AxiosError and generic Error
+    const message =
+      error.response?.data?.message || error.message || "Failed to fetch cart";
+    return thunkAPI.rejectWithValue(message);
   }
 });
-
 // =========================
 // ADD TO CART
 // =========================

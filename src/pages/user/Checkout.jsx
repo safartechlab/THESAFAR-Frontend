@@ -16,9 +16,13 @@ const Checkout = () => {
   const [form, setForm] = useState({
     name: "",
     phone: "",
-    address: "",
+    houseno: "",
+    street: "",
+    landmark: "",
     city: "",
+    state: "",
     pincode: "",
+    country: "India",
   });
 
   const [totals, setTotals] = useState({
@@ -27,50 +31,59 @@ const Checkout = () => {
     finalTotal: 0,
   });
 
-  // Load cart from Redux & calculate totals
+  // Fetch cart + calculate totals
   useEffect(() => {
     dispatch(getCart());
 
-    let subtotal = 0;
-    let discount = 0;
+    let subtotal = 0,
+      discount = 0,
+      finalTotal = 0;
 
-    (cartlist || []).forEach((item) => {
+    cartlist.forEach((item) => {
       const price = Number(item.price) || 0;
-      const discountedPrice = Number(item.discountedPrice) || price;
-      const qty = Number(item.quantity) || 1;
+      const discountedPrice = Number(item.discountedPrice ?? item.price);
+      const qty = Number(item.quantity);
 
       subtotal += price * qty;
+      finalTotal += discountedPrice * qty;
       discount += (price - discountedPrice) * qty;
     });
 
-    setTotals({
-      subtotal,
-      discount,
-      finalTotal: Math.max(subtotal - discount, 0),
-    });
+    setTotals({ subtotal, discount, finalTotal });
   }, [cartlist, dispatch]);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
-  // ---------------- Razorpay payment ----------------
+  // ---------------- Razorpay Payment Handler ----------------
   const handlePlaceOrder = async () => {
-    if (!form.name || !form.phone || !form.address || !form.city || !form.pincode) {
-      dispatch(showToast({ message: "Please fill all details", type: "error" }));
-      return;
+    const requiredFields = [
+      "name",
+      "phone",
+      "houseno",
+      "street",
+      "city",
+      "state",
+      "pincode",
+      "country",
+    ];
+
+    for (let field of requiredFields) {
+      if (!form[field]) {
+        dispatch(
+          showToast({ message: "Please fill all details", type: "error" })
+        );
+        return;
+      }
     }
 
-    if (!totals.finalTotal || totals.finalTotal <= 0) {
+    if (totals.finalTotal <= 0) {
       dispatch(showToast({ message: "Cart is empty", type: "error" }));
       return;
     }
 
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+    if (!token) return navigate("/login");
 
     try {
       const { data } = await axios.post(
@@ -84,7 +97,13 @@ const Checkout = () => {
             price: item.price,
             originalPrice: item.originalPrice || item.mrp || item.price,
             quantity: item.quantity,
-            size: item.size || item.selectedSize,
+            sizeId: item.size?._id || item.size || item.selectedSize,
+            sizeName:
+              item.size?.name ||
+              item.sizeName ||
+              item.selectedSizeName ||
+              item.selectedSize ||
+              "N/A",
           })),
           shippingAddress: form,
           paymentMethod: "Razorpay",
@@ -92,24 +111,24 @@ const Checkout = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (!data.success) {
-        dispatch(showToast({ message: data.message || "Failed to create order", type: "error" }));
-        return;
-      }
+      if (!data.success)
+        return dispatch(
+          showToast({ message: "Failed to create order", type: "error" })
+        );
 
       const razorpayOrder = data.order;
-      const RAZORPAY_KEY = data.key;
 
       const options = {
-        key: RAZORPAY_KEY,
+        key: data.key,
         amount: razorpayOrder.amount,
         currency: "INR",
         name: "TheSafarStore",
         description: "Payment for Order",
         order_id: razorpayOrder.id,
+
         handler: async function (response) {
           try {
-            const verifyRes = await axios.post(
+            const verify = await axios.post(
               `${Baseurl}order/verify-payment`,
               {
                 razorpay_order_id: response.razorpay_order_id,
@@ -130,29 +149,41 @@ const Checkout = () => {
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            if (verifyRes.data.success) {
+            if (verify.data.success) {
               localStorage.removeItem("cartWithSizes");
               navigate("/myorders");
             } else {
-              dispatch(showToast({ message: "Payment verification failed", type: "error" }));
+              dispatch(
+                showToast({
+                  message: "Payment verification failed",
+                  type: "error",
+                })
+              );
             }
           } catch (err) {
-            console.error(err);
-            dispatch(showToast({ message: "Payment verification failed", type: "error" }));
+            dispatch(
+              showToast({
+                message: "Payment verification error",
+                type: "error",
+              })
+            );
           }
         },
+
         prefill: {
           name: form.name,
           email: "customer@example.com",
           contact: form.phone,
         },
+
         theme: { color: "#0d6efd" },
       };
 
       new window.Razorpay(options).open();
     } catch (err) {
-      console.error(err);
-      dispatch(showToast({ message: "Unable to initiate payment", type: "error" }));
+      dispatch(
+        showToast({ message: "Unable to initiate payment", type: "error" })
+      );
     }
   };
 
@@ -162,51 +193,126 @@ const Checkout = () => {
         {/* LEFT FORM */}
         <div className="col-lg-7">
           <div className="card shadow-sm p-4">
-            <h3 className="mb-4">Checkout Details</h3>
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Full Name" className="form-control mb-3" />
-            <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" className="form-control mb-3" />
-            <textarea name="address" value={form.address} onChange={handleChange} placeholder="Address" className="form-control mb-3" rows={3} />
+            <h3 className="mb-4">Shipping Address</h3>
+
+            <input
+              name="name"
+              onChange={handleChange}
+              className="form-control mb-3"
+              placeholder="Full Name"
+            />
+            <input
+              name="phone"
+              onChange={handleChange}
+              className="form-control mb-3"
+              placeholder="Phone Number"
+            />
+
+            <input
+              name="houseno"
+              onChange={handleChange}
+              className="form-control mb-3"
+              placeholder="House No."
+            />
+            <input
+              name="street"
+              onChange={handleChange}
+              className="form-control mb-3"
+              placeholder="Street / Society"
+            />
+            <input
+              name="landmark"
+              onChange={handleChange}
+              className="form-control mb-3"
+              placeholder="Landmark (optional)"
+            />
+
             <div className="row mb-3">
               <div className="col-md-6">
-                <input name="city" value={form.city} onChange={handleChange} placeholder="City" className="form-control" />
+                <input
+                  name="city"
+                  onChange={handleChange}
+                  className="form-control"
+                  placeholder="City"
+                />
               </div>
               <div className="col-md-6">
-                <input name="pincode" value={form.pincode} onChange={handleChange} placeholder="Pincode" className="form-control" />
+                <input
+                  name="state"
+                  onChange={handleChange}
+                  className="form-control"
+                  placeholder="State"
+                />
               </div>
             </div>
-            <button className="btn btn-primary w-100 fw-bold" onClick={handlePlaceOrder}>
+
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <input
+                  name="pincode"
+                  onChange={handleChange}
+                  className="form-control"
+                  placeholder="Pincode"
+                />
+              </div>
+              <div className="col-md-6">
+                <input
+                  name="country"
+                  onChange={handleChange}
+                  className="form-control"
+                  value={form.country}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handlePlaceOrder}
+              className="btn btn-primary w-100 fw-bold"
+            >
               Pay & Place Order
             </button>
           </div>
         </div>
 
-        {/* RIGHT SUMMARY */}
+        {/* RIGHT CART SUMMARY */}
         <div className="col-lg-5">
           <div className="card shadow-sm p-4">
             <h3 className="mb-4">Order Summary</h3>
+
             {cartlist.length === 0 ? (
               <p>Your cart is empty.</p>
             ) : (
               <>
-                <div className="list-group mb-4">
-                  {cartlist.map((item, idx) => (
-                    <div key={idx} className="list-group-item d-flex align-items-center">
-                      <img src={item.image || "https://via.placeholder.com/70"} alt={item.productName} style={{ width: 70, height: 70, objectFit: "cover" }} />
-                      <div className="ms-3 w-100">
-                        <h6>{item.productName}</h6>
-                        <small>Size: {item.size || item.selectedSize || "N/A"}</small><br />
-                        <small>Qty: {item.quantity}</small>
-                      </div>
-                      <span>₹{item.price}</span>
+                {cartlist.map((item, i) => (
+                  <div key={i} className="d-flex mb-3 border-bottom pb-2">
+                    <img
+                      src={item.image}
+                      alt=""
+                      width={70}
+                      height={70}
+                      className="rounded"
+                    />
+                    <div className="ms-3">
+                      <h6>{item.productName}</h6>
+                      <small>Size: {item.size || "N/A"}</small>
+                      <br />
+                      <small>Qty: {item.quantity}</small>
                     </div>
-                  ))}
-                </div>
+                    <strong className="ms-auto">₹{item.price}</strong>
+                  </div>
+                ))}
 
                 <div className="border p-3 bg-light">
-                  <div className="d-flex justify-content-between"><span>Subtotal</span><strong>₹{totals.subtotal}</strong></div>
-                  <div className="d-flex justify-content-between"><span>Discount</span><strong>₹{totals.discount}</strong></div>
+                  <div className="d-flex justify-content-between">
+                    <span>Subtotal</span> <strong>₹{totals.subtotal}</strong>
+                  </div>
+                  <div className="d-flex justify-content-between">
+                    <span>Discount</span> <strong>₹{totals.discount}</strong>
+                  </div>
                   <hr />
-                  <div className="d-flex justify-content-between fw-bold fs-5"><span>Total</span><span>₹{totals.finalTotal}</span></div>
+                  <div className="d-flex justify-content-between fs-5 fw-bold">
+                    <span>Total</span> <span>₹{totals.finalTotal}</span>
+                  </div>
                 </div>
               </>
             )}

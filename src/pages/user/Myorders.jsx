@@ -11,7 +11,6 @@ const MyOrders = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      // ✅ Correct backend route
       const res = await axios.get(`${Baseurl}order/myorders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -119,7 +118,6 @@ const MyOrders = () => {
                 Order #{order.orderNumber || order._id.slice(-6)}
               </h3>
 
-              {/* ❗ Correct field: order.status */}
               <span
                 style={{
                   ...getStatusStyle(order.status),
@@ -150,16 +148,16 @@ const MyOrders = () => {
                 {order.shippingAddress ? (
                   <>
                     <p style={{ margin: 0, color: "#666" }}>
-                      {order.shippingAddress.name},{" "}
-                      {order.shippingAddress.houseno},{" "}
-                      {order.shippingAddress.street}
+                      {order.shippingAddress.name}
+                    </p>
+                    <p style={{ margin: 0, color: "#666" }}>
+                      {order.shippingAddress.houseno},{order.shippingAddress.street},
+                      {order.shippingAddress.landmark}
                     </p>
 
                     <p style={{ margin: 0, color: "#666" }}>
-                      {order.shippingAddress.city} -{" "}
-                      {order.shippingAddress.pincode},{" "}
-                      {order.shippingAddress.state},{" "}
-                      {order.shippingAddress.country}
+                      {order.shippingAddress.city},{order.shippingAddress.state}
+                      {order.shippingAddress.pincode}
                     </p>
 
                     <p style={{ margin: 0, color: "#666" }}>
@@ -221,7 +219,7 @@ const MyOrders = () => {
                             color: "#222",
                           }}
                         >
-                          ₹{item.price}
+                          ₹{item.discountedPrice || item.price}
                         </p>
                       </div>
                     </div>
@@ -248,7 +246,6 @@ const MyOrders = () => {
               <p>Payment: {order.paymentMethod || "N/A"}</p>
               <p>Paid: {order.paymentStatus === "Paid" ? "Yes" : "No"}</p>
 
-              {/* Show only when paid */}
               {order.paymentStatus === "Paid" && (
                 <button
                   onClick={() => handleViewInvoice(order._id)}

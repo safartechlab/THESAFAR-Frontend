@@ -7,8 +7,9 @@ import { addToCart } from "../../store/slice/CartSlice";
 
 const Singleproduct = () => {
   const navigate = useNavigate();
-  const singlepro = useSelector((state) => state.product.singleproduct);
   const dispatch = useDispatch();
+
+  const singlepro = useSelector((state) => state.product.singleproduct);
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -16,27 +17,36 @@ const Singleproduct = () => {
   const [originalPrice, setOriginalPrice] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  // Initialize product
+  // Initialize product on mount
   useEffect(() => {
     if (!singlepro) {
       navigate("/");
-    } else if (singlepro.images?.length > 0) {
-      setSelectedImage(singlepro.images[0].filepath);
+      return;
+    }
 
-      if (singlepro.sizes?.length > 0) {
-        const first = singlepro.sizes[0];
-        setSelectedSize(first.size.size);
-        setSelectedPrice(first.discountedPrice || first.price);
-        setOriginalPrice(first.price);
-      } else {
-        setSelectedPrice(singlepro.discountedPrice || singlepro.price);
-        setOriginalPrice(singlepro.price);
-      }
+    if (singlepro.images?.length > 0) {
+      setSelectedImage(singlepro.images[0].filepath);
+    }
+
+    // Default size selection
+    if (singlepro.sizes?.length > 0) {
+      const first = singlepro.sizes[0];
+
+      setSelectedSize(first.size.size);
+      setSelectedPrice(first.discountedPrice || first.price);
+      setOriginalPrice(first.price);
+    } else {
+      setSelectedPrice(singlepro.discountedPrice || singlepro.price);
+      setOriginalPrice(singlepro.price);
     }
   }, [singlepro, navigate]);
 
-  if (!singlepro) return <p className="text-center mt-5">Loading...</p>;
 
+  if (!singlepro)
+    return <p className="text-center mt-5">Loading...</p>;
+
+
+  // Format price nicely
   const formatPrice = (price) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -44,14 +54,16 @@ const Singleproduct = () => {
       maximumFractionDigits: 0,
     }).format(price);
 
-  // Size selection
+
+  // Handle size click
   const handleSizeClick = (item) => {
     setSelectedSize(item.size.size);
     setSelectedPrice(item.discountedPrice || item.price);
     setOriginalPrice(item.price);
   };
 
-  // Quantity increment/decrement
+
+  // Quantity change
   const handleQuantityChange = (type) => {
     setQuantity((prev) => {
       if (type === "plus") return prev + 1;
@@ -60,7 +72,8 @@ const Singleproduct = () => {
     });
   };
 
-  // Add to Cart
+
+  // Add to Cart (MAIN FIXES APPLIED)
   const handleAddCart = async () => {
     try {
       if (!singlepro?._id) {
@@ -68,52 +81,44 @@ const Singleproduct = () => {
         return;
       }
 
-      // ✅ Ensure a size is selected if the product has size options
+      // Require size selection if product has sizes
       if (singlepro.sizes?.length > 0 && !selectedSize) {
-        dispatch(
-          showToast({ message: "Please select a size", type: "warning" })
-        );
+        dispatch(showToast({ message: "Please select a size", type: "warning" }));
         return;
       }
 
-      // ✅ Find the selected size object (to get its ID and prices)
+      // FIX: Match size correctly
       const selectedSizeObj = singlepro.sizes?.find(
         (s) => s.size.size === selectedSize
       );
 
-      // ✅ Build payload properly
+      // FIXED Payload
       const payload = {
         productId: singlepro._id,
         sizeId: selectedSizeObj?._id || null,
-        size: selectedSizeObj?.size?.size || selectedSize || null,
+        size: selectedSize || null,
         quantity,
-        price: selectedSizeObj?.price || singlepro.price,
-        discountedPrice:
-          selectedSizeObj?.discountedPrice ||
-          singlepro.discountedPrice ||
-          selectedSizeObj?.price ||
-          singlepro.price,
+        price: selectedPrice,
       };
 
-      // ✅ Dispatch addToCart
       const resultAction = await dispatch(addToCart(payload));
 
       if (addToCart.fulfilled.match(resultAction)) {
         dispatch(showToast({ message: "Added to cart!", type: "success" }));
       } else {
-        dispatch(
-          showToast({ message: "Failed to add to cart", type: "error" })
-        );
+        dispatch(showToast({ message: "Failed to add to cart", type: "error" }));
       }
+
     } catch (error) {
       console.error(error);
       dispatch(showToast({ message: "Something went wrong", type: "error" }));
     }
   };
 
+
   return (
     <Row className="my-5 px-3">
-      {/* Left Section: Images */}
+      {/* Images Section */}
       <Col md={6} className="d-flex">
         <div className="me-3 d-flex flex-column align-items-center">
           {singlepro.images?.map((img, i) => (
@@ -151,36 +156,30 @@ const Singleproduct = () => {
         </div>
       </Col>
 
-      {/* Right Section: Product Info */}
+      {/* Product Info */}
       <Col md={6}>
         <h3 className="fw-semibold">{singlepro.productName}</h3>
         <p className="text-muted">{singlepro.description}</p>
 
-        {/* Price */}
+        {/* Price Section */}
         <div className="mb-3">
           <h4 className="text-success mb-0">
             {formatPrice(selectedPrice || singlepro.price)}
           </h4>
+
           {originalPrice && selectedPrice < originalPrice && (
             <>
-              <span
-                className="text-decoration-line-through text-secondary"
-                style={{ fontSize: "14px" }}
-              >
+              <span className="text-decoration-line-through text-secondary" style={{ fontSize: "14px" }}>
                 {formatPrice(originalPrice)}
               </span>
               <span className="ms-2 text-danger">
-                (
-                {Math.round(
-                  ((originalPrice - selectedPrice) / originalPrice) * 100
-                )}
-                % OFF)
+                ({Math.round(((originalPrice - selectedPrice) / originalPrice) * 100)}% OFF)
               </span>
             </>
           )}
         </div>
 
-        {/* Sizes */}
+        {/* Size Buttons */}
         {singlepro.sizes?.length > 0 && (
           <div className="mb-3">
             <strong>Select Size:</strong>
@@ -188,11 +187,7 @@ const Singleproduct = () => {
               {singlepro.sizes.map((item) => (
                 <Button
                   key={item._id}
-                  variant={
-                    selectedSize === item.size.size
-                      ? "primary"
-                      : "outline-secondary"
-                  }
+                  variant={selectedSize === item.size.size ? "primary" : "outline-secondary"}
                   size="sm"
                   onClick={() => handleSizeClick(item)}
                 >
@@ -203,16 +198,15 @@ const Singleproduct = () => {
           </div>
         )}
 
-        {/* Stock Info */}
+        {/* Stock Section */}
         {selectedSize && (
           <small className="text-muted">
             Stock:{" "}
-            {singlepro.sizes.find((s) => s.size.size === selectedSize)?.stock ||
-              0}
+            {singlepro.sizes.find((s) => s.size.size === selectedSize)?.stock || 0}
           </small>
         )}
 
-        {/* Quantity */}
+        {/* Quantity Section */}
         <div className="d-flex align-items-center gap-2 mt-3">
           <strong>Quantity:</strong>
           <Button
@@ -238,11 +232,7 @@ const Singleproduct = () => {
 
         {/* Buttons */}
         <div className="d-flex gap-2 mt-4">
-          <Button
-            variant="outline-primary"
-            className="px-4"
-            onClick={handleAddCart}
-          >
+          <Button variant="outline-primary" className="px-4" onClick={handleAddCart}>
             Add to Cart
           </Button>
           <Button variant="primary" className="px-4">

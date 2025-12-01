@@ -13,32 +13,31 @@ const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { cartlist, loading, error } = useSelector((state) => state.cart);
-
   const [actionLoading, setActionLoading] = useState(false);
 
-  // 🛍 Load cart
+  // Load Cart on Start
   useEffect(() => {
     dispatch(getCart());
   }, [dispatch]);
 
-  // 🧮 Totals
+  // Total Items
   const totalItems =
-    cartlist?.reduce((a, i) => a + (i.quantity || 1), 0) || 0;
+    cartlist?.reduce((sum, item) => sum + (item.quantity || 1), 0) || 0;
 
+  // Total Price
   const totalPrice =
-    cartlist?.reduce(
-      (a, i) =>
-        a +
-        (i.product?.discountedPrice ??
-          i.discountedPrice ??
-          i.product?.price ??
-          i.price ??
-          0) *
-          (i.quantity || 1),
-      0
-    ) || 0;
+    cartlist?.reduce((sum, item) => {
+      const p = item.product || item;
+      const price =
+        p?.discountedPrice ??
+        item.discountedPrice ??
+        p?.price ??
+        item.price ??
+        0;
+      return sum + price * (item.quantity || 1);
+    }, 0) || 0;
 
-  // 🔄 Update Quantity
+  // Update Quantity
   const handleUpdateQuantity = async (e, item, change) => {
     e.preventDefault();
     const newQty = (item.quantity || 1) + change;
@@ -49,8 +48,9 @@ const Cart = () => {
       const res = await dispatch(
         updateCartQuantity({ cartItemId: item._id, quantity: newQty })
       );
-      if (!updateCartQuantity.fulfilled.match(res))
+      if (!updateCartQuantity.fulfilled.match(res)) {
         throw new Error(res.payload || "Failed to update quantity");
+      }
     } catch (err) {
       dispatch(showToast({ message: err.message, type: "error" }));
     } finally {
@@ -58,15 +58,16 @@ const Cart = () => {
     }
   };
 
-  // ❌ Delete Item
+  // Remove Item
   const handleDelete = async (item) => {
     try {
       setActionLoading(true);
       const res = await dispatch(removeFromCart({ cartItemId: item._id }));
-      if (removeFromCart.fulfilled.match(res))
+      if (removeFromCart.fulfilled.match(res)) {
         dispatch(
           showToast({ message: `${item.productName} removed`, type: "success" })
         );
+      }
     } catch (err) {
       dispatch(showToast({ message: err.message, type: "error" }));
     } finally {
@@ -74,16 +75,19 @@ const Cart = () => {
     }
   };
 
-  // 🧩 Update Size
+  // Update Size FIXED
   const handleSizeChange = (item, newSizeId) => {
-    const selectedObj = item.product?.sizes?.find((s) => s._id === newSizeId);
+    const sizes = item.product?.sizes ?? [];
+
+    const selectedObj = sizes.find((s) => s._id === newSizeId);
 
     const updatedCart = cartlist.map((i) =>
       i._id === item._id
         ? {
             ...i,
             sizeId: newSizeId,
-            size: selectedObj?.size,
+            size: selectedObj?.size?.size || null,
+            sizeLabel: selectedObj?.size?.size || null,
           }
         : i
     );
@@ -93,15 +97,18 @@ const Cart = () => {
 
     dispatch(
       showToast({
-        message: `Size updated to ${selectedObj?.size}`,
+        message: `Size updated to ${selectedObj?.size?.size}`,
         type: "success",
       })
     );
   };
 
-  // 🧭 Render Conditions
-  if (loading) return <div className="text-center mt-5">Loading your cart...</div>;
-  if (error) return <div className="text-center mt-5 text-danger">{error}</div>;
+  // Loading / Empty / Error
+  if (loading)
+    return <div className="text-center mt-5">Loading your cart...</div>;
+  if (error)
+    return <div className="text-center mt-5 text-danger">{error}</div>;
+
   if (!cartlist?.length)
     return (
       <div className="text-center mt-5">
@@ -109,37 +116,44 @@ const Cart = () => {
         <Link
           to="/categories"
           className="btn btn-primary btn-sm my-2 px-3 py-2"
-          style={{ backgroundColor: "#1e3632", borderColor: "#1e3632" }}
         >
           Shop Now
         </Link>
       </div>
     );
 
-  // 🧾 Main Cart View
   return (
     <div className="container mt-4">
       <h3 className="mb-4 text-center">Your Cart</h3>
       <div className="row">
-
-        {/* Cart Items */}
+        
+        {/* Cart List */}
         <div className="col-lg-8">
           {cartlist.map((item) => {
             const p = item.product || item;
+
             const price =
-              p?.discountedPrice ?? item.discountedPrice ?? p?.price ?? item.price ?? 0;
-            const productName = p?.productName || p?.name || "Unnamed Product";
+              p?.discountedPrice ??
+              item.discountedPrice ??
+              p?.price ??
+              item.price ??
+              0;
+
+            const productName = p?.productName || "Unnamed Product";
+
             const imageSrc =
               item.image ||
               item.images?.[0]?.filepath ||
               p?.images?.[0]?.filepath ||
               "https://via.placeholder.com/100?text=No+Image";
+
             const hasSizes = Array.isArray(p?.sizes) && p.sizes.length > 0;
-            const selectedSize = item.sizeId || "";
 
             return (
               <div key={item._id} className="card mb-3 shadow-sm border-0 rounded-3">
                 <div className="row g-0 align-items-center">
+                  
+                  {/* Image */}
                   <div className="col-md-3 text-center">
                     <img
                       src={imageSrc}
@@ -149,17 +163,18 @@ const Cart = () => {
                     />
                   </div>
 
+                  {/* Product Info */}
                   <div className="col-md-6">
                     <div className="card-body">
                       <h5>{productName}</h5>
 
-                      {/* Size Selector */}
+                      {/* Size Selector FIXED */}
                       {hasSizes && (
                         <div className="mb-2">
                           <label className="me-2 fw-semibold">Size:</label>
                           <select
                             className="form-select form-select-sm w-auto d-inline"
-                            value={selectedSize}
+                            value={item.sizeId || ""}
                             onChange={(e) =>
                               handleSizeChange(item, e.target.value)
                             }
@@ -167,14 +182,14 @@ const Cart = () => {
                             <option value="">Select Size</option>
                             {p.sizes.map((sz) => (
                               <option key={sz._id} value={sz._id}>
-                                {sz.size}
+                                {sz.size.size}
                               </option>
                             ))}
                           </select>
                         </div>
                       )}
 
-                      {/* Quantity & Price */}
+                      {/* Quantity */}
                       <div className="d-flex align-items-center mb-2">
                         <span className="me-2">Qty:</span>
                         <button
@@ -184,7 +199,9 @@ const Cart = () => {
                         >
                           -
                         </button>
+
                         <span>{item.quantity || 1}</span>
+
                         <button
                           className="btn btn-outline-secondary btn-sm ms-1"
                           onClick={(e) => handleUpdateQuantity(e, item, 1)}
@@ -201,6 +218,7 @@ const Cart = () => {
                     </div>
                   </div>
 
+                  {/* Remove */}
                   <div className="col-md-3 text-end pe-4">
                     <button
                       className="btn btn-outline-danger btn-sm"
@@ -210,6 +228,7 @@ const Cart = () => {
                       Remove
                     </button>
                   </div>
+
                 </div>
               </div>
             );
@@ -221,16 +240,18 @@ const Cart = () => {
           <div className="card p-3 shadow-sm border-0">
             <h5>Cart Summary</h5>
             <hr />
+
             <div className="d-flex justify-content-between mb-2">
               <span>Total Items</span>
               <span>{totalItems}</span>
             </div>
+
             <div className="d-flex justify-content-between mb-3">
               <span>Total Price</span>
               <strong>₹{totalPrice.toFixed(2)}</strong>
             </div>
 
-            {/* 👉 Proceed to Checkout Page */}
+            {/* Checkout */}
             <button
               className="btn btn-success w-100"
               onClick={() =>
