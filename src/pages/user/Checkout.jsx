@@ -45,7 +45,12 @@ const Checkout = () => {
   });
 
   useEffect(() => {
-    if (!orderPlaced && !buyNowItem && cartlist.length === 0) {
+    if (orderPlaced) return; // 🔥 Prevents unwanted toast + redirect
+
+    const hasCartItems = cartlist && cartlist.length > 0;
+    const hasBuyNowItem = !!buyNowItem;
+
+    if (!hasCartItems && !hasBuyNowItem) {
       dispatch(showToast({ message: "No items to checkout", type: "error" }));
       navigate("/");
     }
@@ -95,24 +100,49 @@ const Checkout = () => {
     if (!token) return navigate("/login");
 
     try {
-      // 🔥 SEND isBuyNow (important fix)
+      // ⭐ PREPARE PROPER ITEMS LIST FOR BOTH CART & BUY NOW ⭐
+      const formattedItems = itemsToUse.map((item) => {
+        const price = Number(item.originalPrice || item.price);
+        const discounted = Number(item.discountedPrice || item.price);
+
+        return {
+          productId: item.productId || item.product,
+          productName: item.productName,
+          image: item.image,
+          price: price, // original price
+          discountedPrice: discounted, // discounted
+          quantity: item.quantity,
+          sizeId: item.sizeId || null,
+          sizeName: item.sizeName || "N/A",
+          total: discounted * item.quantity, // ⭐ FIXED
+        };
+      });
+
+      // ⭐ CALCULATE TOTALS (Buy Now or Cart)
+      const subtotal = formattedItems.reduce(
+        (sum, it) => sum + it.price * it.quantity,
+        0
+      );
+
+      const totalFinal = formattedItems.reduce(
+        (sum, it) => sum + it.discountedPrice * it.quantity,
+        0
+      );
+
+      const discount = subtotal - totalFinal;
+
+      // ⭐ CREATE RAZORPAY ORDER
       const { data } = await axios.post(
         `${Baseurl}order/create-razorpay-order`,
         {
-          amount: totals.finalTotal,
-          items: itemsToUse.map((item) => ({
-            productId: item.productId || item.product,
-            productName: item.productName,
-            image: item.image,
-            price: item.price,
-            originalPrice: item.originalPrice || item.price,
-            quantity: item.quantity,
-            sizeId: item.sizeId || null,
-            sizeName: item.sizeName || "N/A",
-          })),
+          amount: totalFinal,
+          items: formattedItems, // ⭐ FIXED
           shippingAddress: form,
           paymentMethod: "Razorpay",
-          isBuyNow: !!buyNowItem, // 🔥 FIX ADDED
+          isBuyNow: !!buyNowItem, // ⭐ FIXED
+          subtotal,
+          discount,
+          totalPrice: totalFinal,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -136,28 +166,30 @@ const Checkout = () => {
 
         handler: async function (response) {
           try {
-            // 🔥 SEND isBuyNow + items (important fix)
+            // ⭐ VERIFY PAYMENT WITH PROPER ORDER DATA
             const verify = await axios.post(
               `${Baseurl}order/verify-payment`,
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                checkoutForm: form,
-                cartItems: itemsToUse,
-                totalAmount: totals.finalTotal,
 
-                items: itemsToUse, // 🔥 FIX ADDED
-                isBuyNow: !!buyNowItem, // 🔥 FIX ADDED
+                checkoutForm: form,
+                items: formattedItems, // ⭐ FIXED
+                subtotal,
+                discount,
+                totalPrice: totalFinal,
+                isBuyNow: !!buyNowItem, // ⭐ FIXED
               },
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
             if (verify.data.success) {
+              // Clear cart / buynow
               if (buyNowItem) dispatch(clearBuyNowItem());
               else dispatch(clearCart());
-              setOrderPlaced(true);
 
+              setOrderPlaced(true);
               localStorage.removeItem("cartWithSizes");
 
               dispatch(
@@ -203,10 +235,10 @@ const Checkout = () => {
             <button
               className="btn btn-secondary mb-3"
               onClick={() => {
-              navigate("/singleproduct");
+                navigate("/singleproduct");
               }}
             >
-              ← Back to Product
+              ← Back to
             </button>
 
             <h3 className="mb-4">Shipping Address</h3>
