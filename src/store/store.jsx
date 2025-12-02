@@ -9,6 +9,7 @@ import productReducer from './slice/productSlice'
 import orderReducer from "./slice/OrderSlice"
 import cartReducer from "./slice/CartSlice"
 import wishReducer from "./slice/wishlistSlice"
+import buyNowReducer  from "./slice/Buynowslice"
 const store = configureStore({
     reducer:{
         toast:toastReducer,
@@ -21,6 +22,7 @@ const store = configureStore({
         order : orderReducer,
         cart : cartReducer,
         wishlist : wishReducer,
+        buynow: buyNowReducer,
     }
 })
 

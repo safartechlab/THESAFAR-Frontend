@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Row, Col, Image, Button, FormControl } from "react-bootstrap";
 import { showToast } from "../../store/slice/toast_slice";
 import { addToCart } from "../../store/slice/CartSlice";
+import { setBuyNowItem } from "../../store/slice/Buynowslice";
 
 const Singleproduct = () => {
   const navigate = useNavigate();
@@ -17,7 +18,6 @@ const Singleproduct = () => {
   const [originalPrice, setOriginalPrice] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  // Initialize product on mount
   useEffect(() => {
     if (!singlepro) {
       navigate("/");
@@ -28,7 +28,6 @@ const Singleproduct = () => {
       setSelectedImage(singlepro.images[0].filepath);
     }
 
-    // Default size selection
     if (singlepro.sizes?.length > 0) {
       const first = singlepro.sizes[0];
 
@@ -41,12 +40,9 @@ const Singleproduct = () => {
     }
   }, [singlepro, navigate]);
 
-
   if (!singlepro)
     return <p className="text-center mt-5">Loading...</p>;
 
-
-  // Format price nicely
   const formatPrice = (price) =>
     new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -54,16 +50,12 @@ const Singleproduct = () => {
       maximumFractionDigits: 0,
     }).format(price);
 
-
-  // Handle size click
   const handleSizeClick = (item) => {
     setSelectedSize(item.size.size);
     setSelectedPrice(item.discountedPrice || item.price);
     setOriginalPrice(item.price);
   };
 
-
-  // Quantity change
   const handleQuantityChange = (type) => {
     setQuantity((prev) => {
       if (type === "plus") return prev + 1;
@@ -72,8 +64,6 @@ const Singleproduct = () => {
     });
   };
 
-
-  // Add to Cart (MAIN FIXES APPLIED)
   const handleAddCart = async () => {
     try {
       if (!singlepro?._id) {
@@ -81,18 +71,15 @@ const Singleproduct = () => {
         return;
       }
 
-      // Require size selection if product has sizes
       if (singlepro.sizes?.length > 0 && !selectedSize) {
         dispatch(showToast({ message: "Please select a size", type: "warning" }));
         return;
       }
 
-      // FIX: Match size correctly
       const selectedSizeObj = singlepro.sizes?.find(
         (s) => s.size.size === selectedSize
       );
 
-      // FIXED Payload
       const payload = {
         productId: singlepro._id,
         sizeId: selectedSizeObj?._id || null,
@@ -115,10 +102,34 @@ const Singleproduct = () => {
     }
   };
 
+  const handleBuyNow = () => {
+    if (singlepro.sizes?.length > 0 && !selectedSize) {
+      dispatch(showToast({ message: "Please select a size", type: "warning" }));
+      return;
+    }
+
+    const selectedSizeObj = singlepro.sizes?.find(
+      (s) => s.size.size === selectedSize
+    );
+
+    const buyNowPayload = {
+      productId: singlepro._id,
+      productName: singlepro.productName,
+      image: selectedImage || singlepro.images?.[0]?.filepath,
+      sizeId: selectedSizeObj?._id || null,
+      sizeName: selectedSize || null,
+      quantity,
+      price: selectedPrice,
+      discountedPrice: selectedPrice,
+      originalPrice: originalPrice,
+    };
+
+    dispatch(setBuyNowItem(buyNowPayload));
+    navigate("/checkout");
+  };
 
   return (
     <Row className="my-5 px-3">
-      {/* Images Section */}
       <Col md={6} className="d-flex">
         <div className="me-3 d-flex flex-column align-items-center">
           {singlepro.images?.map((img, i) => (
@@ -147,24 +158,18 @@ const Singleproduct = () => {
             src={selectedImage || "/no-image.png"}
             alt={singlepro.productName}
             fluid
-            style={{
-              maxHeight: "500px",
-              objectFit: "contain",
-              borderRadius: "10px",
-            }}
+            style={{ maxHeight: "500px", objectFit: "contain", borderRadius: "10px" }}
           />
         </div>
       </Col>
 
-      {/* Product Info */}
       <Col md={6}>
         <h3 className="fw-semibold">{singlepro.productName}</h3>
         <p className="text-muted">{singlepro.description}</p>
 
-        {/* Price Section */}
         <div className="mb-3">
           <h4 className="text-success mb-0">
-            {formatPrice(selectedPrice || singlepro.price)}
+            {formatPrice(selectedPrice)}
           </h4>
 
           {originalPrice && selectedPrice < originalPrice && (
@@ -179,7 +184,6 @@ const Singleproduct = () => {
           )}
         </div>
 
-        {/* Size Buttons */}
         {singlepro.sizes?.length > 0 && (
           <div className="mb-3">
             <strong>Select Size:</strong>
@@ -198,22 +202,15 @@ const Singleproduct = () => {
           </div>
         )}
 
-        {/* Stock Section */}
         {selectedSize && (
           <small className="text-muted">
-            Stock:{" "}
-            {singlepro.sizes.find((s) => s.size.size === selectedSize)?.stock || 0}
+            Stock: {singlepro.sizes.find((s) => s.size.size === selectedSize)?.stock || 0}
           </small>
         )}
 
-        {/* Quantity Section */}
         <div className="d-flex align-items-center gap-2 mt-3">
           <strong>Quantity:</strong>
-          <Button
-            size="sm"
-            variant="outline-secondary"
-            onClick={() => handleQuantityChange("minus")}
-          >
+          <Button size="sm" variant="outline-secondary" onClick={() => handleQuantityChange("minus")}>
             -
           </Button>
           <FormControl
@@ -221,21 +218,16 @@ const Singleproduct = () => {
             readOnly
             style={{ width: "60px", textAlign: "center" }}
           />
-          <Button
-            size="sm"
-            variant="outline-secondary"
-            onClick={() => handleQuantityChange("plus")}
-          >
+          <Button size="sm" variant="outline-secondary" onClick={() => handleQuantityChange("plus")}>
             +
           </Button>
         </div>
 
-        {/* Buttons */}
         <div className="d-flex gap-2 mt-4">
           <Button variant="outline-primary" className="px-4" onClick={handleAddCart}>
             Add to Cart
           </Button>
-          <Button variant="primary" className="px-4">
+          <Button variant="primary" className="px-4" onClick={handleBuyNow}>
             Buy Now
           </Button>
         </div>
