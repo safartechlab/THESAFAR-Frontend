@@ -2,8 +2,9 @@ import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { FaOpencart } from "react-icons/fa";
 import { LuShoppingBasket } from "react-icons/lu";
 import { FaList } from "react-icons/fa"
-import { RiEqualizer2Line ,RiCustomSize } from "react-icons/ri";
+import { RiEqualizer2Line ,RiCustomSize,  } from "react-icons/ri";
 import { FaImage } from "react-icons/fa";
+import { TiMessages } from "react-icons/ti";
 
 export const adminpages = [
     {
@@ -46,4 +47,9 @@ export const adminpages = [
         icon:RiCustomSize,
         path:'/admin/Addsize'
     },
+    {
+        name: 'Messages',
+        icon : TiMessages,
+        path : '/admin/messages'
+    }
 ]

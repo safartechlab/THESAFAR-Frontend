@@ -1,9 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import "../../safar_css/user.css"; // 👈 Import CSS file
+import "../../safar_css/user.css"; // Optional custom styles
 import { showToast } from "../../store/slice/toast_slice";
 import { Baseurl } from "../../baseurl";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const Contactus = () => {
   const [formData, setFormData] = useState({
@@ -15,22 +16,16 @@ const Contactus = () => {
   const dispatch = useDispatch();
   const [status, setStatus] = useState("");
 
-  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Validate email format
   const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
-
-  // Validate contact number (10 digits)
   const isValidContact = (contact) => /^\d{10}$/.test(contact);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Client-side validation
     if (!isValidEmail(formData.email)) {
       dispatch(showToast({ message: "Invalid email address", type: "error" }));
       return;
@@ -47,7 +42,6 @@ const Contactus = () => {
 
     setStatus("Sending...");
 
-    // Get token from localStorage
     const token = localStorage.getItem("token");
     if (!token) {
       dispatch(
@@ -86,12 +80,9 @@ const Contactus = () => {
         );
         setFormData({ name: "", email: "", contact: "", message: "" });
         setStatus(
-          "Message sent successfully ! Our Team will connect you shortly..."
+          "Message sent successfully! Our Team will connect you shortly..."
         );
-        setTimeout(() => {
-          setStatus("");
-        }, 3000);
-        setFormData({ name: "", email: "", contact: "", message: "" });
+        setTimeout(() => setStatus(""), 3000);
       }
     } catch (err) {
       console.error(err);
@@ -109,124 +100,143 @@ const Contactus = () => {
   };
 
   return (
-    <div className="contact-container">
+    <div className="container my-5">
       {/* Hero Section */}
-      <section className="contact-hero">
-        <div className="overlay"></div>
-        <div className="hero-content">
-          <h1>
-            Contact <span>THE SAFAR.store</span>
-          </h1>
-          <p>We’d love to hear from you. Let’s get in touch today!</p>
-        </div>
+      <section className="text-center mb-5 p-5 bg-primary text-white rounded">
+        <h1>
+          Contact <span className="fw-bold">THE SAFAR.store</span>
+        </h1>
+        <p className="lead">
+          We’d love to hear from you. Let’s get in touch today!
+        </p>
       </section>
 
-      {/* Contact Form & Info */}
-      <section className="contact-section">
-        <div className="contact-form">
-          <h2>Send Us a Message</h2>
-          <p>
-            Have a question, feedback, or business inquiry? Fill out the form
-            below, and our team will get back to you shortly.
-          </p>
+      <div className="row">
+        {/* Contact Form */}
+        <div className="col-lg-6 mb-4">
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <h3 className="card-title mb-3">Send Us a Message</h3>
+              <p className="text-muted mb-4">
+                Have a question, feedback, or business inquiry? Fill out the
+                form below, and our team will get back to you shortly.
+              </p>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Your Name</label>
-              <input
-                type="text"
-                name="name"
-                placeholder="Enter your name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Email Address</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Contact No</label>
-              <input
-                type="text"
-                name="contact"
-                placeholder="Enter Number"
-                value={formData.contact}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Message</label>
-              <textarea
-                name="message"
-                rows="5"
-                placeholder="Type your message here..."
-                value={formData.message}
-                onChange={handleChange}
-                required
-              ></textarea>
-            </div>
-            <button type="submit" className="submit-btn">
-              Send Message
-            </button>
-          </form>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label className="form-label">Your Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    className="form-control"
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-          {status && <p className="form-status">{status}</p>}
+                <div className="mb-3">
+                  <label className="form-label">Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    className="form-control"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Contact No</label>
+                  <input
+                    type="text"
+                    name="contact"
+                    className="form-control"
+                    placeholder="Enter number"
+                    value={formData.contact}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Message</label>
+                  <textarea
+                    name="message"
+                    rows="5"
+                    className="form-control"
+                    placeholder="Type your message here..."
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                  ></textarea>
+                </div>
+
+                <button type="submit" className="btn btn-primary w-100">
+                  Send Message
+                </button>
+              </form>
+
+              {status && <p className="mt-3 text-center">{status}</p>}
+            </div>
+          </div>
         </div>
 
-        <div className="contact-info">
-          <h2>Get in Touch</h2>
-          <div className="info-item">
-            <i className="fas fa-map-marker-alt"></i>
-            <p>
-              <strong>Address:</strong>
-              <br /> 410, Adinath Arcade, Adajan - 395009
-            </p>
-          </div>
-          <div className="info-item">
-            <i className="fas fa-phone-alt"></i>
-            <p>
-              <strong>Phone:</strong>
-              <br /> +91 99797-81975
-            </p>
-          </div>
-          <div className="info-item">
-            <i className="fas fa-envelope"></i>
-            <p>
-              <strong>Email:</strong>
-              <br /> thesafaronlinestore@gmail.com
-            </p>
-          </div>
-          <div className="info-item">
-            <i className="fas fa-clock"></i>
-            <p>
-              <strong>Working Hours:</strong>
-              <br /> Mon - Sat: 9:00 AM to 8:00 PM
-            </p>
+        {/* Contact Info */}
+        <div className="col-lg-6">
+          <div className="card shadow-sm p-3">
+            <h3 className="mb-4">Get in Touch</h3>
+
+            <div className="mb-3 d-flex">
+              <i className="fas fa-map-marker-alt fs-4 me-3 text-primary"></i>
+              <div>
+                <strong>Address:</strong>
+                <br />
+                410, Adinath Arcade, Adajan - 395009
+              </div>
+            </div>
+
+            <div className="mb-3 d-flex">
+              <i className="fas fa-phone-alt fs-4 me-3 text-primary"></i>
+              <div>
+                <strong>Phone:</strong>
+                <br /> +91 99797-81975
+              </div>
+            </div>
+
+            <div className="mb-3 d-flex">
+              <i className="fas fa-envelope fs-4 me-3 text-primary"></i>
+              <div>
+                <strong>Email:</strong>
+                <br /> thesafaronlinestore@gmail.com
+              </div>
+            </div>
+
+            <div className="d-flex">
+              <i className="fas fa-clock fs-4 me-3 text-primary"></i>
+              <div>
+                <strong>Working Hours:</strong>
+                <br /> Mon - Sat: 9:00 AM to 8:00 PM
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Map Section */}
-      <section className="contact-map">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1563.9543488603163!2d72.78384518343194!3d21.20283138460715!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04d6cf4cede03%3A0xe8d226328cae6baf!2sAadinath%20Arcade!5e0!3m2!1sen!2sin!4v1760073399668!5m2!1sen!2sin"
-          width="600"
-          height="450"
-          style={{ border: 0 }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
+      <section className="mt-5">
+        <div className="ratio ratio-16x9 shadow rounded">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1563.9543488603163!2d72.78384518343194!3d21.20283138460715!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04d6cf4cede03%3A0xe8d226328cae6baf!2sAadinath%20Arcade!5e0!3m2!1sen!2sin!4v1760073399668!5m2!1sen!2sin"
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Our Location"
+          ></iframe>
+        </div>
       </section>
     </div>
   );
