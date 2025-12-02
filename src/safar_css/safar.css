@@ -1,11 +1,11 @@
 :root{
   --bgcolor :#ffff !important;
-  --textcolor: #1e3632 !important;
+  --textcolor: #113741 !important;
   --btncolor:#fdf4e5 !important;
   --btn2color:#1e3632 !important;
   --btntext:#fdf4e5 !important
 }
-
+/* #1e2c36  */
 @font-face {
   font-family: "Tagesschrift";
   src: url("/fonts/Tagesschrift.woff2") format("woff2"),

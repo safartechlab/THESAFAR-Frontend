@@ -1,91 +1,109 @@
-import axios from 'axios'
-import * as Yup from 'yup'
-import { Baseurl } from '../../../baseurl'
-import { useDispatch, useSelector } from 'react-redux'
-import { showToast } from '../../../store/slice/toast_slice'
-import { getsize } from '../../../store/slice/Sizeslice'
-import { Container, Row ,Col , Form as BootstrapForm} from 'react-bootstrap'
+import axios from 'axios';
+import * as Yup from 'yup';
+import { Baseurl } from '../../../baseurl';
+import { useDispatch, useSelector } from 'react-redux';
+import { showToast } from '../../../store/slice/toast_slice';
+import { getsize } from '../../../store/slice/Sizeslice';
+import { Container, Row, Col, Card, Form as BootstrapForm } from 'react-bootstrap';
 import { RiCustomSize } from "react-icons/ri";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import Getsize from './getsize'
+import { useEffect } from 'react';
+import Getsize from './getsize';
 
+const Addsize = () => {
+  const dispatch = useDispatch();
+  const sizeList = useSelector(state => state.size.sizelist);
 
-const Addsize = () =>{
-    const dispatch = useDispatch()
-    const validationSchema = Yup.object({
-        size : Yup.string().required("size name is require"),
-    })
-    const initialValues = {
-        size:""
+  useEffect(() => {
+    dispatch(getsize());
+  }, [dispatch]);
+
+  const validationSchema = Yup.object({
+    size: Yup.string().required("Size name is required"),
+  });
+
+  const initialValues = {
+    size: "",
+  };
+
+  const handleSubmit = async (values, { resetForm }) => {
+    try {
+      const res = await axios.post(`${Baseurl}size/addsize`, values);
+      if (res.status === 200) {
+        dispatch(showToast({ message: res.data.message, type: 'success' }));
+        dispatch(getsize());
+        resetForm();
+      } else {
+        dispatch(showToast({ message: res.data.message, type: 'error' }));
+      }
+    } catch (error) {
+      dispatch(showToast({
+        message: error?.response?.data?.message || "Something went wrong",
+        type: "error"
+      }));
     }
+  };
 
-    const handleSubmit = async(values,{resetForm}) =>{
-        try{
-            const res = await axios.post(`${Baseurl}size/addsize`,values)
-            if(res.status){
-                dispatch(showToast({message:res.data.message,type:'success'}))
-                dispatch(getsize())
-                resetForm()
-            }
-            else{
-                dispatch(showToast({message:res.data.message,type:'error'}))
-            }
+  return (
+    <Container fluid className="py-4">
+      {/* Header */}
+      <Row className="align-items-center mb-4">
+        <Col xs="auto">
+          <RiCustomSize className="fs-1 text-primary" />
+        </Col>
+        <Col>
+          <h2 className="mb-0">Size</h2>
+        </Col>
+      </Row>
 
-        }
-        catch(error){
-            console.log(error);
-            dispatch(showToast({message: error?.response?.data?.message || "Something went wrong",type: "error"}));
-        }
-    }
+      {/* Add Size Form */}
+      <Card className="shadow-sm rounded border-0 mb-4">
+        <Card.Body className="p-4">
+          <h4 className="mb-4">Add Size</h4>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {() => (
+              <Form>
+                <Row className="g-3 align-items-center">
+                  {/* Size input */}
+                  <Col xs={12} md={8}>
+                    <Field
+                      type="text"
+                      name="size"
+                      placeholder="Enter size name"
+                      className="form-control shadow-sm"
+                    />
+                    <ErrorMessage
+                      name="size"
+                      component="div"
+                      className="text-danger mt-1 small"
+                    />
+                  </Col>
 
-    return(
-        <>
-            <Row className='mx-0'>
-                <Container className='px-4 py-3'>
-                    <Row className="align-items-center font-color mb-4">
-                        <Col xs={2} md={1}>
-                            <RiCustomSize className="fs-1" />
-                        </Col>
-                        <Col xs={10} md={11}>
-                            <h2 className="mb-0">Size</h2>
-                        </Col>
-                    </Row>
+                  {/* Submit button */}
+                  <Col xs={12} md={4}>
+                    <button type="submit" className="btn btn-primary w-100 shadow-sm">
+                      Add Size
+                    </button>
+                  </Col>
+                </Row>
+              </Form>
+            )}
+          </Formik>
+        </Card.Body>
+      </Card>
 
-                    <Container className="py-4 rounded shadow-sm sidebar-color">
-                    <h3 className="mb-4">Add Size</h3>
-                    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit} >
-                {({}) => (
-                    <Form>
-            <Row className="g-3 justify-content-center align-items-center mb-5">
-            {/* Size name */}
-            <Col xs={12} sm={8} md={8}>
-                <Field type="text" id='size' className='w-100 p-2 rounded-2 header-color'  name="size"placeholder="Enter size name"  />
-                <ErrorMessage name="size"component="div"style={{ color: "red" }}/>
-            </Col>
-            
-            <Col xs={12} sm={4} md={3}>
-              <button type='submit' className="admin-btn-color rounded-2 w-100 p-2 fw-semibold">
-                Add Size
-              </button>
-            </Col>
-            </Row>
-          </Form>
-        )}
-      </Formik>
-
-        <Row className="mt-4">
-            <Col>
-              <div className="border rounded p-3  overflow-auto">
-                <Getsize/>
-              </div>
-            </Col>
-          </Row>
-
+      {/* Existing Sizes */}
+      <Card className="shadow-sm rounded border-0">
+        <Card.Body className="p-3 overflow-auto">
+          <Getsize />
+        </Card.Body>
+      </Card>
     </Container>
+  );
+};
 
-                </Container>
-            </Row>
-        </>
-    )
-}
-export default Addsize
+export default Addsize;

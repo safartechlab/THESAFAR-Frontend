@@ -1,20 +1,57 @@
-// import React from "react";   
-
 const Adminfooter = () => {
   const currentYear = new Date().getFullYear();
 
   return (
     <footer
-      className="bg-dark text-light py-3 mt-auto shadow-sm"
-      style={{ borderTop: "3px solid #dfdfe9ff" }}
+      className="mt-auto py-4"
+      style={{
+        background: "linear-gradient(90deg, #0f2d35, #13485a, #0f2d35)",
+        borderTop: "2px solid rgba(255,255,255,0.08)",
+        backdropFilter: "blur(6px)",
+        boxShadow: "0 -4px 20px rgba(0,0,0,0.2)",
+      }}
     >
-      <div className="container text-center">
-        <p className="mb-1 fw-semibold">
-          © {currentYear} <span className="text-primary">Admin Dashboard</span>. All Rights Reserved.
+      <div className="container text-center text-light">
+
+        <h6
+          style={{
+            fontWeight: 600,
+            letterSpacing: "0.5px",
+            marginBottom: "6px",
+            fontSize: "1rem",
+          }}
+        >
+          © {currentYear} <span style={{ color: "#35c9ff" }}>Admin Dashboard</span>
+        </h6>
+
+        <p
+          style={{
+            fontSize: "0.85rem",
+            opacity: 0.85,
+            margin: 0,
+          }}
+        >
+          Designed & Developed by{" "}
+          <span
+            style={{
+              color: "#4ed3ff",
+              fontWeight: 600,
+            }}
+          >
+            SAFAR TECHLAB LLP
+          </span>
         </p>
-        <small className="text-muted">
-          Designed & Developed by <span className="text-info">SAFAR TECHLAB LLP</span>
-        </small>
+
+        <div
+          style={{
+            marginTop: "10px",
+            fontSize: "0.8rem",
+            opacity: 0.7,
+          }}
+        >
+          <span>Version 1.0.0</span>
+        </div>
+
       </div>
     </footer>
   );

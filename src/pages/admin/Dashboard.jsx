@@ -15,7 +15,7 @@ const Dashboard = () => {
     dispatch(getAllOrders());
   }, [dispatch]);
 
-  // 💰 Calculate revenue
+  // Revenue calculations
   const {
     dailyRevenue,
     weeklyRevenue,
@@ -33,11 +33,7 @@ const Dashboard = () => {
       };
 
     const now = new Date();
-    const startOfDay = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-    );
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - now.getDay());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -50,14 +46,11 @@ const Dashboard = () => {
       total = 0;
 
     orderlist.forEach((order) => {
-      // Only count paid orders
       if (order.paymentStatus !== "Paid") return;
-
       const date = new Date(order.createdAt);
       const revenue = order.totalPrice || 0;
 
       total += revenue;
-
       if (date >= startOfDay) daily += revenue;
       if (date >= startOfWeek) weekly += revenue;
       if (date >= startOfMonth) monthly += revenue;
@@ -73,7 +66,7 @@ const Dashboard = () => {
     };
   }, [orderlist]);
 
-  // 📊 Order count by status
+  // Status count
   const statusCounts = useMemo(() => {
     const statuses = [
       "Received",
@@ -84,9 +77,8 @@ const Dashboard = () => {
       "Rejected",
     ];
     const counts = {};
-    statuses.forEach((status) => {
-      counts[status] =
-        orderlist?.filter((o) => o.status === status).length || 0;
+    statuses.forEach((s) => {
+      counts[s] = orderlist?.filter((order) => order.status === s).length || 0;
     });
     return counts;
   }, [orderlist]);
@@ -108,109 +100,116 @@ const Dashboard = () => {
 
   return (
     <div className="container my-4">
-      <h2 className="fw-bold text-center mb-4">📊 Admin Dashboard</h2>
 
-      {/* 💰 Revenue Summary */}
-      <h4 className="fw-bold mb-3 text-center">Revenue Summary</h4>
-      <Row xs={1} sm={2} md={4} className="g-3 mb-4 text-center">
-        <Col>
-          <Card className="shadow-sm border border-success">
-            <Card.Body>
-              <Card.Title className="text-success fw-bold">Today</Card.Title>
-              <Card.Text>₹{dailyRevenue.toFixed(2)}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col>
-          <Card className="shadow-sm border border-primary">
-            <Card.Body>
-              <Card.Title className="text-primary fw-bold">
-                This Week
-              </Card.Title>
-              <Card.Text>₹{weeklyRevenue.toFixed(2)}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col>
-          <Card className="shadow-sm border border-warning">
-            <Card.Body>
-              <Card.Title className="text-warning fw-bold">
-                This Month
-              </Card.Title>
-              <Card.Text>₹{monthlyRevenue.toFixed(2)}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col>
-          <Card className="shadow-sm border border-danger">
-            <Card.Body>
-              <Card.Title className="text-danger fw-bold">This Year</Card.Title>
-              <Card.Text>₹{yearlyRevenue.toFixed(2)}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
+      <h2 className="fw-bold text-center mb-4 dashboard-title">
+        📊 Admin Analytics Dashboard
+      </h2>
+
+      {/* Revenue Section */}
+      <h4 className="fw-bold mb-3 text-center section-heading">
+        Revenue Summary
+      </h4>
+
+      <Row xs={1} sm={2} lg={4} className="g-4 mb-4">
+        {[
+          { title: "Today", value: dailyRevenue, color: "#22c55e" },
+          { title: "This Week", value: weeklyRevenue, color: "#3b82f6" },
+          { title: "This Month", value: monthlyRevenue, color: "#f59e0b" },
+          { title: "This Year", value: yearlyRevenue, color: "#ef4444" },
+        ].map((box, index) => (
+          <Col key={index}>
+            <Card className="shadow-lg analytics-card text-center">
+              <Card.Body>
+                <Card.Title
+                  className="fw-bold"
+                  style={{ color: box.color, fontSize: "20px" }}
+                >
+                  {box.title}
+                </Card.Title>
+                <Card.Text className="fw-bold fs-4">
+                  ₹{box.value.toFixed(2)}
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
       </Row>
 
-      <h5 className="text-center fw-bold mb-5">
-        Total Revenue: ₹{totalRevenue.toFixed(2)}
-      </h5>
+      <h4 className="text-center fw-bold mb-5 total-revenue-text">
+        Total Revenue: <span>₹{totalRevenue.toFixed(2)}</span>
+      </h4>
 
-      {/* 📦 Orders by Status */}
-      <h4 className="fw-bold mb-3 text-center">Orders by Status</h4>
-      <Row xs={1} sm={2} md={3} className="g-3 text-center">
-        <Col>
-          <Card className="shadow-sm border-start border-5 border-warning">
-            <Card.Body>
-              <Card.Title className="text-warning fw-bold">Received</Card.Title>
-              <Card.Text>{statusCounts.Received}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col>
-          <Card className="shadow-sm border-start border-5 border-info">
-            <Card.Body>
-              <Card.Title className="text-info fw-bold">Confirmed</Card.Title>
-              <Card.Text>{statusCounts.Confirmed}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col>
-          <Card className="shadow-sm border-start border-5 border-primary">
-            <Card.Body>
-              <Card.Title className="text-primary fw-bold">Shipped</Card.Title>
-              <Card.Text>{statusCounts.Shipped}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col>
-          <Card className="shadow-sm border-start border-5 border-success">
-            <Card.Body>
-              <Card.Title className="text-success fw-bold">
-                Delivered
-              </Card.Title>
-              <Card.Text>{statusCounts.Delivered}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col>
-          <Card className="shadow-sm border-start border-5 border-danger">
-            <Card.Body>
-              <Card.Title className="text-danger fw-bold">Cancelled</Card.Title>
-              <Card.Text>{statusCounts.Cancelled}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col>
-          <Card className="shadow-sm border-start border-5 border-secondary">
-            <Card.Body>
-              <Card.Title className="text-secondary fw-bold">
-                Rejected
-              </Card.Title>
-              <Card.Text>{statusCounts.Rejected}</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
+      {/* Orders by Status */}
+      <h4 className="fw-bold mb-3 text-center section-heading">
+        Orders Overview
+      </h4>
+
+      <Row xs={1} sm={2} lg={3} className="g-4">
+        {[
+          { title: "Received", color: "#f59e0b" },
+          { title: "Confirmed", color: "#0ea5e9" },
+          { title: "Shipped", color: "#3b82f6" },
+          { title: "Delivered", color: "#22c55e" },
+          { title: "Cancelled", color: "#ef4444" },
+          { title: "Rejected", color: "#6b7280" },
+        ].map((box, index) => (
+          <Col key={index}>
+            <Card className="shadow-lg analytics-card text-center">
+              <div
+                className="status-bar"
+                style={{ backgroundColor: box.color }}
+              ></div>
+
+              <Card.Body>
+                <Card.Title
+                  className="fw-bold"
+                  style={{ color: box.color, fontSize: "20px" }}
+                >
+                  {box.title}
+                </Card.Title>
+
+                <Card.Text className="fw-bold fs-4">
+                  {statusCounts[box.title]}
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
       </Row>
+
+      {/* CSS Styling */}
+      <style>{`
+        .analytics-card {
+          backdrop-filter: blur(10px);
+          background: rgba(255, 255, 255, 0.12);
+          border-radius: 15px;
+          transition: 0.3s;
+          border: 1px solid rgba(255,255,255,0.15);
+        }
+        .analytics-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+        }
+        .dashboard-title {
+          color: #0ea5e9;
+          text-shadow: 0px 0px 12px rgba(14,165,233,0.4);
+        }
+        .section-heading {
+          color: #14b8a6;
+          text-shadow: 0 0 10px rgba(20,184,166,0.3);
+        }
+        .total-revenue-text span {
+          color: #f97316;
+          font-size: 26px;
+          text-shadow: 0 0 10px rgba(249,115,22,0.3);
+        }
+        .status-bar {
+          height: 7px;
+          width: 100%;
+          border-radius: 10px 10px 0 0;
+        }
+      `}</style>
+
     </div>
   );
 };

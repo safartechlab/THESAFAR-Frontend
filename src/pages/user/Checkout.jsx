@@ -47,13 +47,13 @@ const Checkout = () => {
   useEffect(() => {
     if (orderPlaced) return; // 🔥 Prevents unwanted toast + redirect
 
-    const hasCartItems = cartlist && cartlist.length > 0;
-    const hasBuyNowItem = !!buyNowItem;
+    // const hasCartItems = cartlist && cartlist.length > 0;
+    // const hasBuyNowItem = !!buyNowItem;
 
-    if (!hasCartItems && !hasBuyNowItem) {
-      dispatch(showToast({ message: "No items to checkout", type: "error" }));
-      navigate("/");
-    }
+    // if (!hasCartItems && !hasBuyNowItem) {
+    //   dispatch(showToast({ message: "No items to checkout", type: "error" }));
+    //   navigate("/");
+    // }
   }, [buyNowItem, cartlist, orderPlaced]);
 
   useEffect(() => {
@@ -198,7 +198,6 @@ const Checkout = () => {
                   type: "success",
                 })
               );
-
               navigate("/myorders");
             } else {
               dispatch(
