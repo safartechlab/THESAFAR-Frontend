@@ -43,14 +43,14 @@ export const getUserOrders = createAsyncThunk(
 // ✏️ Update order status (Admin)
 export const updateOrderStatus = createAsyncThunk(
   "order/updateOrderStatus",
-  async ({ orderId, status }, { rejectWithValue, dispatch }) => {
+  async ({ orderId, status, rejectReason  }, { rejectWithValue, dispatch }) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Unauthorized: Token not found");
 
       const res = await axios.put(
         `${Baseurl}order/status/${orderId}`,
-        { status },
+        { status, rejectReason },
         {
           headers: { Authorization: `Bearer ${token}` },
         }

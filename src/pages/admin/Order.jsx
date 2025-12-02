@@ -40,11 +40,17 @@ const Getorders = () => {
     }, {});
   }, [orderlist]);
 
+  // Open Reject Modal
+  const openRejectModal = (orderId) => {
+    setRejectOrderId(orderId);
+    setShowRejectModal(true);
+  };
+
   // Handle status change
   const handleStatusChange = async (orderId, newStatus, reason = "") => {
     try {
       await dispatch(
-        updateOrderStatus({ orderId, status: newStatus, reason })
+        updateOrderStatus({ orderId, status: newStatus, rejectReason: reason })
       ).unwrap();
 
       dispatch(
@@ -57,14 +63,10 @@ const Getorders = () => {
       if (newStatus === "Rejected") setShowRejectModal(false);
       setRejectReason("");
     } catch (err) {
-      dispatch(showToast({ type: "error", message: "Failed to update order" }));
+      dispatch(
+        showToast({ type: "error", message: "Failed to update order" })
+      );
     }
-  };
-
-  // Open Reject Modal
-  const openRejectModal = (orderId) => {
-    setRejectOrderId(orderId);
-    setShowRejectModal(true);
   };
 
   // Handle Invoice View/Download
@@ -109,7 +111,6 @@ const Getorders = () => {
             >
               ✅ Confirm
             </Button>
-
             <Button
               size="sm"
               variant="danger"
@@ -130,7 +131,6 @@ const Getorders = () => {
             >
               🚚 Ship
             </Button>
-
             <Button
               size="sm"
               variant="danger"
@@ -151,7 +151,6 @@ const Getorders = () => {
             >
               📦 Deliver
             </Button>
-
             <Button
               size="sm"
               variant="danger"
@@ -276,7 +275,9 @@ const Getorders = () => {
 
       {statusOrder.map((status) => (
         <div key={status} className="mb-5">
-          <h5 className="fw-bold mb-3">{status} Orders ({groupedOrders[status]?.length})</h5>
+          <h5 className="fw-bold mb-3">
+            {status} Orders ({groupedOrders[status]?.length})
+          </h5>
           {renderTable(groupedOrders[status])}
         </div>
       ))}

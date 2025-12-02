@@ -37,6 +37,8 @@ const MyOrders = () => {
         return { background: "#d4edda", color: "#155724" };
       case "Cancelled":
         return { background: "#f8d7da", color: "#721c24" };
+      case "Rejected":
+        return { background: "#f8d7da", color: "#721c24" }; // highlighted red for rejected
       case "Paid":
         return { background: "#d4edda", color: "#155724" };
       default:
@@ -78,6 +80,22 @@ const MyOrders = () => {
       </div>
     );
 
+  const formatAddress = (addr) => {
+    if (!addr) return "N/A";
+    return [
+      addr.name,
+      addr.houseno,
+      addr.street,
+      addr.landmark,
+      addr.city,
+      addr.state,
+      addr.pincode,
+      addr.phone,
+    ]
+      .filter(Boolean)
+      .join(", ");
+  };
+
   return (
     <div style={{ maxWidth: "1100px", margin: "50px auto", padding: "20px" }}>
       <h2
@@ -98,7 +116,7 @@ const MyOrders = () => {
             key={order._id}
             style={{
               borderRadius: "15px",
-              backgroundColor: "#fff",
+              backgroundColor: order.status === "Rejected" ? "#fff0f0" : "#fff",
               boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
               overflow: "hidden",
             }}
@@ -109,31 +127,46 @@ const MyOrders = () => {
                 background: "#f8f9fa",
                 padding: "18px 25px",
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                flexWrap: "wrap",
+                flexDirection: "column",
+                gap: "6px",
               }}
             >
-              <h3 style={{ margin: 0, color: "#333", fontSize: "18px" }}>
-                Order #{order.orderNumber || order._id.slice(-6)}
-              </h3>
-
-              <span
+              <div
                 style={{
-                  ...getStatusStyle(order.status),
-                  padding: "5px 12px",
-                  borderRadius: "8px",
-                  fontWeight: "600",
-                  fontSize: "14px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  width: "100%",
                 }}
               >
-                {order.status || "Processing"}
-              </span>
+                <h3 style={{ margin: 0, color: "#333", fontSize: "18px" }}>
+                  Order #{order.orderNumber || order._id.slice(-6)}
+                </h3>
+                <span
+                  style={{
+                    ...getStatusStyle(order.status),
+                    padding: "5px 12px",
+                    borderRadius: "8px",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                  }}
+                >
+                  {order.status || "Processing"}
+                </span>
+              </div>
+
+              {order.status === "Rejected" && order.rejectReason && (
+                <span
+                  style={{ color: "red", fontWeight: "700", fontSize: "14px" }}
+                >
+                  Reason: {order.rejectReason}
+                </span>
+              )}
             </div>
 
             {/* Body */}
             <div style={{ padding: "20px 25px" }}>
-              {/* Address */}
+              {/* Shipping Address */}
               <div
                 style={{
                   marginBottom: "15px",
@@ -144,35 +177,14 @@ const MyOrders = () => {
                 <h4 style={{ marginBottom: "6px", color: "#555" }}>
                   Shipping Address
                 </h4>
-
-                {order.shippingAddress ? (
-                  <>
-                    <p style={{ margin: 0, color: "#666" }}>
-                      {order.shippingAddress.name}
-                    </p>
-                    <p style={{ margin: 0, color: "#666" }}>
-                      {order.shippingAddress.houseno},{order.shippingAddress.street},
-                      {order.shippingAddress.landmark}
-                    </p>
-
-                    <p style={{ margin: 0, color: "#666" }}>
-                      {order.shippingAddress.city},{order.shippingAddress.state}
-                      {order.shippingAddress.pincode}
-                    </p>
-
-                    <p style={{ margin: 0, color: "#666" }}>
-                      Phone: {order.shippingAddress.phone}
-                    </p>
-                  </>
-                ) : (
-                  <p style={{ color: "#999" }}>No address available</p>
-                )}
+                <p style={{ color: "#666", margin: 0 }}>
+                  {formatAddress(order.shippingAddress)}
+                </p>
               </div>
 
               {/* Items */}
               <div>
                 <h4 style={{ marginBottom: "10px", color: "#555" }}>Items</h4>
-
                 {order.items?.length ? (
                   order.items.map((item, idx) => (
                     <div
@@ -196,7 +208,6 @@ const MyOrders = () => {
                           objectFit: "cover",
                         }}
                       />
-
                       <div style={{ flex: 1 }}>
                         <p
                           style={{
@@ -207,11 +218,9 @@ const MyOrders = () => {
                         >
                           {item.productName}
                         </p>
-
                         <p style={{ margin: 0, color: "#777" }}>
                           Qty: {item.quantity}
                         </p>
-
                         <p
                           style={{
                             margin: 0,
@@ -237,9 +246,10 @@ const MyOrders = () => {
                 padding: "15px 25px",
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
                 flexWrap: "wrap",
+                alignItems: "center",
                 fontWeight: "600",
+                gap: "10px",
               }}
             >
               <p>Subtotal: ₹{order.totalPrice}</p>
