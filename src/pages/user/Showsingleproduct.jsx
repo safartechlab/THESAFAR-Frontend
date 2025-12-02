@@ -30,7 +30,6 @@ const Singleproduct = () => {
 
     if (singlepro.sizes?.length > 0) {
       const first = singlepro.sizes[0];
-
       setSelectedSize(first.size.size);
       setSelectedPrice(first.discountedPrice || first.price);
       setOriginalPrice(first.price);
@@ -40,8 +39,7 @@ const Singleproduct = () => {
     }
   }, [singlepro, navigate]);
 
-  if (!singlepro)
-    return <p className="text-center mt-5">Loading...</p>;
+  if (!singlepro) return <p className="text-center mt-5">Loading...</p>;
 
   const formatPrice = (price) =>
     new Intl.NumberFormat("en-IN", {
@@ -64,7 +62,15 @@ const Singleproduct = () => {
     });
   };
 
+  const selectedStock = selectedSize
+    ? singlepro.sizes.find((s) => s.size.size === selectedSize)?.stock || 0
+    : singlepro.stock || 0;
+
+  const isOutOfStock = selectedStock === 0;
+
   const handleAddCart = async () => {
+    if (isOutOfStock) return;
+
     try {
       if (!singlepro?._id) {
         dispatch(showToast({ message: "Product not found", type: "error" }));
@@ -95,7 +101,6 @@ const Singleproduct = () => {
       } else {
         dispatch(showToast({ message: "Failed to add to cart", type: "error" }));
       }
-
     } catch (error) {
       console.error(error);
       dispatch(showToast({ message: "Something went wrong", type: "error" }));
@@ -103,6 +108,8 @@ const Singleproduct = () => {
   };
 
   const handleBuyNow = () => {
+    if (isOutOfStock) return;
+
     if (singlepro.sizes?.length > 0 && !selectedSize) {
       dispatch(showToast({ message: "Please select a size", type: "warning" }));
       return;
@@ -168,17 +175,18 @@ const Singleproduct = () => {
         <p className="text-muted">{singlepro.description}</p>
 
         <div className="mb-3">
-          <h4 className="text-success mb-0">
-            {formatPrice(selectedPrice)}
-          </h4>
-
+          <h4 className="text-success mb-0">{formatPrice(selectedPrice)}</h4>
           {originalPrice && selectedPrice < originalPrice && (
             <>
-              <span className="text-decoration-line-through text-secondary" style={{ fontSize: "14px" }}>
+              <span
+                className="text-decoration-line-through text-secondary"
+                style={{ fontSize: "14px" }}
+              >
                 {formatPrice(originalPrice)}
               </span>
               <span className="ms-2 text-danger">
-                ({Math.round(((originalPrice - selectedPrice) / originalPrice) * 100)}% OFF)
+                ({Math.round(((originalPrice - selectedPrice) / originalPrice) * 100)}%
+                OFF)
               </span>
             </>
           )}
@@ -194,23 +202,27 @@ const Singleproduct = () => {
                   variant={selectedSize === item.size.size ? "primary" : "outline-secondary"}
                   size="sm"
                   onClick={() => handleSizeClick(item)}
+                  disabled={item.stock === 0}
                 >
-                  {item.size.size}
+                  {item.size.size} {item.stock === 0 && "(Out of Stock)"}
                 </Button>
               ))}
             </div>
           </div>
         )}
 
-        {selectedSize && (
-          <small className="text-muted">
-            Stock: {singlepro.sizes.find((s) => s.size.size === selectedSize)?.stock || 0}
-          </small>
-        )}
+        <small className="text-muted">
+          {isOutOfStock ? "Out of Stock" : `Stock: ${selectedStock}`}
+        </small>
 
         <div className="d-flex align-items-center gap-2 mt-3">
           <strong>Quantity:</strong>
-          <Button size="sm" variant="outline-secondary" onClick={() => handleQuantityChange("minus")}>
+          <Button
+            size="sm"
+            variant="outline-secondary"
+            onClick={() => handleQuantityChange("minus")}
+            disabled={isOutOfStock}
+          >
             -
           </Button>
           <FormControl
@@ -218,16 +230,31 @@ const Singleproduct = () => {
             readOnly
             style={{ width: "60px", textAlign: "center" }}
           />
-          <Button size="sm" variant="outline-secondary" onClick={() => handleQuantityChange("plus")}>
+          <Button
+            size="sm"
+            variant="outline-secondary"
+            onClick={() => handleQuantityChange("plus")}
+            disabled={isOutOfStock}
+          >
             +
           </Button>
         </div>
 
         <div className="d-flex gap-2 mt-4">
-          <Button variant="outline-primary" className="px-4" onClick={handleAddCart}>
+          <Button
+            variant="outline-primary"
+            className="px-4"
+            onClick={handleAddCart}
+            disabled={isOutOfStock}
+          >
             Add to Cart
           </Button>
-          <Button variant="primary" className="px-4" onClick={handleBuyNow}>
+          <Button
+            variant="primary"
+            className="px-4"
+            onClick={handleBuyNow}
+            disabled={isOutOfStock}
+          >
             Buy Now
           </Button>
         </div>
@@ -237,3 +264,4 @@ const Singleproduct = () => {
 };
 
 export default Singleproduct;
+
