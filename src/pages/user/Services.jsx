@@ -6,22 +6,22 @@ import "../../safar_css/user.css";
 const ServiceFeatures = () => {
   const services = [
     {
-      icon: <FaCarSide size={35} color="white" />,
+      icon: <FaCarSide size={35} color="#1e3632" />,
       title: "Free Shipping",
       desc: "Free on order over 500",
     },
     {
-      icon: <FaShieldAlt size={35} color="white" />,
+      icon: <FaShieldAlt size={35} color="#1e3632" />,
       title: "Security Payment",
       desc: "100% security payment",
     },
     {
-      icon: <FaExchangeAlt size={35} color="white" />,
+      icon: <FaExchangeAlt size={35} color="#1e3632" />,
       title: "7 Day Easy Return",
       desc: "7 day money Back guarantee",
     },
     {
-      icon: <FaPhoneAlt size={35} color="white" />,
+      icon: <FaPhoneAlt size={35} color="#1e3632" />,
       title: "24/7 Support",
       desc: "Fast Support Everytime",
     },

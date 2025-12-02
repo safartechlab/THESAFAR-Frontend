@@ -5,9 +5,9 @@ const Aboutus = () => {
   return (
     <div className="about-container">
       {/* Hero Section */}
-      <section className="about-hero">
+      <section className="about-hero" style={{background : "#66a49aff"}}>
         <div className="overlay"></div>
-        <div className="hero-content">
+        <div className="hero-content" >
           <h1>About <span>THE SAFAR.store</span></h1>
           <p>Your trusted destination for fashion, electronics, and everything in between.</p>
         </div>

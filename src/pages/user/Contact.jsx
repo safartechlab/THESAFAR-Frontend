@@ -102,9 +102,9 @@ const Contactus = () => {
   return (
     <div className="container my-5">
       {/* Hero Section */}
-      <section className="text-center mb-5 p-5 bg-primary text-white rounded">
+      <section className="text-center mb-5 p-5  text-white rounded" style={{background : "#1e3632"}}>
         <h1>
-          Contact <span className="fw-bold">THE SAFAR.store</span>
+         <span className="fw-bold" >THE SAFAR.store</span>
         </h1>
         <p className="lead">
           We’d love to hear from you. Let’s get in touch today!
