@@ -133,7 +133,7 @@ const Checkout = () => {
 
       // ⭐ CREATE RAZORPAY ORDER
       const { data } = await axios.post(
-        `${Baseurl}order/create-razorpay-order`,
+        `${Baseurl}/order/create-razorpay-order`,
         {
           amount: totalFinal,
           items: formattedItems, // ⭐ FIXED
@@ -168,7 +168,7 @@ const Checkout = () => {
           try {
             // ⭐ VERIFY PAYMENT WITH PROPER ORDER DATA
             const verify = await axios.post(
-              `${Baseurl}order/verify-payment`,
+              `${Baseurl}/order/verify-payment`,
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,

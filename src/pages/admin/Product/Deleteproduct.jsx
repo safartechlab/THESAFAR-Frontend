@@ -15,7 +15,7 @@ const Deleteproduct = () => {
             return
         }
         try{
-            const res = await axios.delete(`${Baseurl}product/deleteproduct/${productdelete._id}`)
+            const res = await axios.delete(`${Baseurl}/product/deleteproduct/${productdelete._id}`)
             if(res.status){
                 dispatch(showToast({message:res.data.message,type:'success'}))
                 dispatch(getproduct())

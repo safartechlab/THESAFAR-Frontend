@@ -11,7 +11,7 @@ const MyOrders = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      const res = await axios.get(`${Baseurl}order/myorders`, {
+      const res = await axios.get(`${Baseurl}/order/myorders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -51,7 +51,7 @@ const MyOrders = () => {
       const token = localStorage.getItem("token");
       if (!token) return alert("Please log in to view invoices.");
 
-      const res = await fetch(`${Baseurl}order/invoice/${orderId}`, {
+      const res = await fetch(`${Baseurl}/order/invoice/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

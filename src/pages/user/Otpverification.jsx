@@ -35,7 +35,7 @@ const OtpVerification = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(`${Baseurl}user/verifyotp`, {
+      const res = await axios.post(`${Baseurl}/user/verifyotp`, {
         email,
         otp: enteredOtp,
       });

@@ -28,7 +28,7 @@ const Addsize = () => {
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      const res = await axios.post(`${Baseurl}size/addsize`, values);
+      const res = await axios.post(`${Baseurl}/size/addsize`, values);
       if (res.status === 200) {
         dispatch(showToast({ message: res.data.message, type: 'success' }));
         dispatch(getsize());

@@ -33,7 +33,7 @@ export default categorylist.reducer
 
 export const getcategory = () =>async(dispatch)=>{
     try{
-        const res = await axios.get(`${Baseurl}category/getallcategory`) 
+        const res = await axios.get(`${Baseurl}/category/getallcategory`) 
         console.log(res.data);
         dispatch(setcategory(res.data.data))
     }

@@ -14,7 +14,7 @@ const Deletesubcategory = () =>{
             dispatch(showToast({ message: "Sub Category ID not found", type: "error" }))
         }
         try{
-            const res = await axios.delete(`${Baseurl}subcategory/deletesubcategory/${subcatedata._id}`)
+            const res = await axios.delete(`${Baseurl}/subcategory/deletesubcategory/${subcatedata._id}`)
             if(res.status){
                 dispatch(showToast({message:res.data.message,type:'success'}))
                 dispatch(getsubcate())

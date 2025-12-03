@@ -67,7 +67,7 @@ const Updatesubcategory = () => {
       };
 
       const res = await axios.put(
-        `${Baseurl}subcategory/updatesubcategory/${subcate.id}`,
+        `${Baseurl}/subcategory/updatesubcategory/${subcate.id}`,
         payload
       );
 

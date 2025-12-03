@@ -15,7 +15,7 @@ const AddBanner = () => {
 
   const fetchBanners = async () => {
     try {
-      const response = await axios.get(`${Baseurl}banner/getbanners`);
+      const response = await axios.get(`${Baseurl}/banner/getbanners`);
       setBanners(response.data || []);
     } catch (error) {}
   };
@@ -61,7 +61,7 @@ const AddBanner = () => {
 
     try {
       setUploading(true);
-      const response = await axios.post(`${Baseurl}banner/addbanner`, formData, {
+      const response = await axios.post(`${Baseurl}/banner/addbanner`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -75,7 +75,7 @@ const AddBanner = () => {
 
   const handleDeleteBanner = async (id) => {
     try {
-      await axios.delete(`${Baseurl}banner/deletebanner/${id}`);
+      await axios.delete(`${Baseurl}/banner/deletebanner/${id}`);
       setBanners((prev) => prev.filter((b) => b._id !== id));
       dispatch(showToast({ message: "Banner deleted", type: "success" }));
     } catch (error) {
@@ -89,7 +89,7 @@ const AddBanner = () => {
 
     try {
       setUploading(true);
-      const response = await axios.put(`${Baseurl}banner/updatebanner/${id}`, formData, {
+      const response = await axios.put(`${Baseurl}/banner/updatebanner/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

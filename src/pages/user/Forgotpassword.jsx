@@ -20,7 +20,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
-      const res = await axios.post(`${Baseurl}user/forgotpassword`, {
+      const res = await axios.post(`${Baseurl}/user/forgotpassword`, {
         email: values.email,
       });
 

@@ -49,7 +49,7 @@ export const getproduct =
     try {
       const { category, subcategory, query } = filters;
 
-      let url = `${Baseurl}product/getallproduct`;
+      let url = `${Baseurl}/product/getallproduct`;
       const queryParams = [];
 
       if (category) queryParams.push(`category=${encodeURIComponent(category)}`);

@@ -20,7 +20,7 @@ const Authprovider = ({ children }) => {
                             authorization: `${token}`
                         }
                     }
-                    const res = await axios.post(`${Baseurl}user/authverify`, {},config)
+                    const res = await axios.post(`${Baseurl}/user/authverify`, {},config)
     
                     if (res.data.status) {
                         

@@ -35,7 +35,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const res = await axios.post(`${Baseurl}user/resetpassword`, {
+      const res = await axios.post(`${Baseurl}/user/resetpassword`, {
         email,
         otp,
         password: values.password,

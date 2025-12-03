@@ -37,7 +37,7 @@ const Addcategory = () => {
       formdata.append("categoryname", values.categoryname);
       if (selectedFile) formdata.append("categoryimage", selectedFile);
 
-      const res = await axios.post(`${Baseurl}category/addcategory`, formdata, {
+      const res = await axios.post(`${Baseurl}/category/addcategory`, formdata, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

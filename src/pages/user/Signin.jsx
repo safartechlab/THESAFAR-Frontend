@@ -28,7 +28,7 @@ const Signin = () => {
   // ---------------- Login ----------------
   const handlesumit = async (values, { setSubmitting }) => {
     try {
-      const res = await axios.post(`${Baseurl}user/login`, values);
+      const res = await axios.post(`${Baseurl}/user/login`, values);
 
       if (res.status === 200) {
         dispatch(initiallogin(res.data.data));

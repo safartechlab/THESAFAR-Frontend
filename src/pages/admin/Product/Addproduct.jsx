@@ -83,7 +83,7 @@ const Addproduct = () => {
       });
       selectedfile.forEach((file) => allFormData.append("images", file));
 
-      const res = await axios.post(`${Baseurl}product/addproduct`, allFormData, {
+      const res = await axios.post(`${Baseurl}/product/addproduct`, allFormData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

@@ -33,7 +33,7 @@ export default Sizeslice.reducer
 
 export const getsize = () => async(dispatch) =>{
     try{
-        const res = await axios.get(`${Baseurl}size/getallsize`)
+        const res = await axios.get(`${Baseurl}/size/getallsize`)
         console.log(res.data.data);
         dispatch(setsize(res.data.data))
     }

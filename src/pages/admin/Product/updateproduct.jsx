@@ -159,7 +159,7 @@ const UpdateProduct = () => {
 
       // ✅ Make API call
       const res = await axios.put(
-        `${Baseurl}product/updateproduct/${product.id}`,
+        `${Baseurl}/product/updateproduct/${product.id}`,
         formData,
         config
       );

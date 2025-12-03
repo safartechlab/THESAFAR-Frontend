@@ -18,7 +18,7 @@ function Messages() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await axios.get(`${Baseurl}message/getmessage`, {
+        const res = await axios.get(`${Baseurl}/message/getmessage`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setMessages(res.data);
@@ -43,7 +43,7 @@ function Messages() {
     setSending(true);
     try {
       await axios.post(
-        `${Baseurl}message/reply`,
+        `${Baseurl}/message/reply`,
         { messageId: selectedMessage._id, replyMessage: replyText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -62,7 +62,7 @@ function Messages() {
     if (!window.confirm("Are you sure you want to delete this message?")) return;
 
     try {
-      await axios.delete(`${Baseurl}message/deletmessage/${msgId}`, {
+      await axios.delete(`${Baseurl}/message/deletmessage/${msgId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMessages(prev => prev.filter(msg => msg._id !== msgId));
