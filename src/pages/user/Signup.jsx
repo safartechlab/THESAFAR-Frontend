@@ -41,7 +41,7 @@ const Signup = () => {
     try {
       const { confirmPassword, ...payload } = values;
 
-      const res = await axios.post(`${Baseurl}/user/signup`, payload);
+      const res = await axios.post(`${Baseurl}user/signup`, payload);
         console.log(res.status);
         
       if (res.status) {

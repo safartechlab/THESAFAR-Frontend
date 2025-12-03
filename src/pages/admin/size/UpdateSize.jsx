@@ -31,7 +31,7 @@ const Updatesize = () =>{
 
     const update = async() => {
         try{
-            const res = await axios.put(`${Baseurl}/size/updatesize/${getupsize._id}`,{size:updatedata.size})
+            const res = await axios.put(`${Baseurl}size/updatesize/${getupsize._id}`,{size:updatedata.size})
             if(res.status){
                 dispatch(showToast({message:res.data.message,type:'success'}))
                 dispatch(getsize())

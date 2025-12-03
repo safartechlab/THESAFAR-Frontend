@@ -21,7 +21,7 @@ const MyAccount = () => {
 
         if (!userID || !token) throw new Error("User not authenticated");
 
-        const res = await axios.get(`${Baseurl}/user/getuser/${userID}`, {
+        const res = await axios.get(`${Baseurl}user/getuser/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -48,7 +48,7 @@ const MyAccount = () => {
       const token = localStorage.getItem("token");
       const userID = localStorage.getItem("userID");
 
-      const res = await axios.put(`${Baseurl}/user/updateduser/${userID}`, formData, {
+      const res = await axios.put(`${Baseurl}user/updateduser/${userID}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -68,7 +68,7 @@ const MyAccount = () => {
       const token = localStorage.getItem("token");
       const userID = localStorage.getItem("userID");
 
-      await axios.delete(`${Baseurl}/user/deleteacount/${userID}`, {
+      await axios.delete(`${Baseurl}user/deleteacount/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

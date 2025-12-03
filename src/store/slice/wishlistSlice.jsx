@@ -8,7 +8,7 @@ export const fetchWishlist = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`${Baseurl}/wishlist/getwish`, {
+      const res = await axios.get(`${Baseurl}wishlist/getwish`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -33,7 +33,7 @@ export const addToWishlist = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `${Baseurl}/wishlist/wish`, // 👈 matches your backend route
+        `${Baseurl}wishlist/wish`, // 👈 matches your backend route
         { productId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -59,7 +59,7 @@ export const removeProductFromWishlist = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const res = await axios.delete(
-        `${Baseurl}/wishlist/deletewish/${productId}`,
+        `${Baseurl}wishlist/deletewish/${productId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

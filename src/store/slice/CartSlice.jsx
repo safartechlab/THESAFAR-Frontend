@@ -24,7 +24,7 @@ const enrichCart = async (cartItems) => {
         return item; // prevent crash
       }
 
-      const p = await axios.get(`${Baseurl}/product/getproduct/${productId}`);
+      const p = await axios.get(`${Baseurl}product/getproduct/${productId}`);
 
       return {
         ...item,
@@ -40,7 +40,7 @@ const enrichCart = async (cartItems) => {
 export const getCart = createAsyncThunk("cart/getCart", async (_, thunkAPI) => {
   try {
     // Make the GET request to fetch the cart
-    const res = await axios.get(`${Baseurl}/cart/getcart`, {
+    const res = await axios.get(`${Baseurl}cart/getcart`, {
       headers: getAuthHeaders(),
     });
 
@@ -67,7 +67,7 @@ export const addToCart = createAsyncThunk(
   async ({ productId, sizeId, size, quantity, price }, thunkAPI) => {
     try {
       await axios.post(
-        `${Baseurl}/cart/addtocart`,
+        `${Baseurl}cart/addtocart`,
         { productId, quantity, sizeId, size, price },
         {
           headers: {
@@ -76,7 +76,7 @@ export const addToCart = createAsyncThunk(
         }
       );
 
-      const updated = await axios.get(`${Baseurl}/cart/getcart`, {
+      const updated = await axios.get(`${Baseurl}cart/getcart`, {
         headers: getAuthHeaders(),
       });
 
@@ -97,12 +97,12 @@ export const updateCartQuantity = createAsyncThunk(
   async ({ cartItemId, quantity }, thunkAPI) => {
     try {
       await axios.put(
-        `${Baseurl}/cart/updatecart/${cartItemId}`,
+        `${Baseurl}cart/updatecart/${cartItemId}`,
         { quantity },
         { headers: getAuthHeaders() }
       );
 
-      const updated = await axios.get(`${Baseurl}/cart/getcart`, {
+      const updated = await axios.get(`${Baseurl}cart/getcart`, {
         headers: getAuthHeaders(),
       });
 
@@ -122,11 +122,11 @@ export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async ({ cartItemId, productName }, thunkAPI) => {
     try {
-      await axios.delete(`${Baseurl}/cart/removecart/${cartItemId}`, {
+      await axios.delete(`${Baseurl}cart/removecart/${cartItemId}`, {
         headers: getAuthHeaders(),
       });
 
-      const updated = await axios.get(`${Baseurl}/cart/getcart`, {
+      const updated = await axios.get(`${Baseurl}cart/getcart`, {
         headers: getAuthHeaders(),
       });
 
@@ -149,7 +149,7 @@ export const removeFromCart = createAsyncThunk(
 // =========================
 export const clearCart = createAsyncThunk("cart/clearCart", async () => {
   try {
-    await axios.delete(`${Baseurl}/cart/clear`, { headers: getAuthHeaders() });
+    await axios.delete(`${Baseurl}cart/clear`, { headers: getAuthHeaders() });
     return [];
   } catch {
     return [];

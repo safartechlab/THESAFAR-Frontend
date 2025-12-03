@@ -16,7 +16,7 @@ const Deletecategory = () => {
         }
 
         try{
-            const res = await axios.delete(`${Baseurl}/category/deletecategory/${categorydata._id}`)
+            const res = await axios.delete(`${Baseurl}category/deletecategory/${categorydata._id}`)
             if(res.status){
                 dispatch(showToast({message:res.data.message,type:'success'}))
                 dispatch(getcategory())

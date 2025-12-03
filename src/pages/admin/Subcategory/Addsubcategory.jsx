@@ -37,7 +37,7 @@ const Addsubcategory = () => {
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      const res = await axios.post(`${Baseurl}/subcategory/addsubcategory`, values);
+      const res = await axios.post(`${Baseurl}subcategory/addsubcategory`, values);
       if (res.status === 200) {
         dispatch(showToast({ message: res.data.message, type: "success" }));
         dispatch(getsubcate());

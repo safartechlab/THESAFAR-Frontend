@@ -11,7 +11,7 @@ const Deletesize = () => {
 
     const deletesize = async() =>{
         try{
-            const res = await axios.delete(`${Baseurl}/size/deletesize/${getdata._id}`)
+            const res = await axios.delete(`${Baseurl}size/deletesize/${getdata._id}`)
             if(res.status){
                 dispatch(showToast({message:res.data.message,type:'success'}))
                 dispatch(getsize())

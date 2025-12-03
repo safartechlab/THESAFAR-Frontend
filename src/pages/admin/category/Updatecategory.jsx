@@ -44,7 +44,7 @@ const Updatecategory = () =>{
             const config = {
                 headers: { "Content-Type": "multipart/form-data" },
             }
-            const res = await axios.put(`${Baseurl}/category/updatecategory/${category.id}`,formData,config)
+            const res = await axios.put(`${Baseurl}category/updatecategory/${category.id}`,formData,config)
             dispatch(showToast({message:res.data.message,type:'success'}))
             dispatch(getcategory())
             dispatch(closeupdate())

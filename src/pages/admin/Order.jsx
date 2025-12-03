@@ -71,7 +71,7 @@ const Getorders = () => {
       const token = localStorage.getItem("token");
       if (!token) return alert("Admin login required.");
 
-      const res = await fetch(`${Baseurl}/order/invoice/${orderId}`, {
+      const res = await fetch(`${Baseurl}order/invoice/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

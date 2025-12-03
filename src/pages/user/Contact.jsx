@@ -56,7 +56,7 @@ const Contactus = () => {
 
     try {
       const res = await axios.post(
-        `${Baseurl}/message/sendmessage`,
+        `${Baseurl}message/sendmessage`,
         {
           name: formData.name,
           email: formData.email,

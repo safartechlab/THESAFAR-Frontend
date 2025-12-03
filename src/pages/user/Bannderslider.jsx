@@ -9,7 +9,7 @@ const BootstrapGridBanner = () => {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const res = await axios.get(`${Baseurl}/banner/getbanners`);
+        const res = await axios.get(`${Baseurl}banner/getbanners`);
         setSlides(res.data);
       } catch (err) {
         console.error("Error fetching slider images", err);

@@ -34,7 +34,7 @@ export default subcategorylist.reducer
 
 export const getsubcate = () => async(dispatch)=>{
     try{
-        const res = await axios.get(`${Baseurl}/subcategory/getallsubcategory`)
+        const res = await axios.get(`${Baseurl}subcategory/getallsubcategory`)
         console.log(res.data.data);
         dispatch(setsubcategory(res.data.data))
     }

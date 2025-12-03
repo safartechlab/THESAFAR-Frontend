@@ -10,7 +10,7 @@ export const getAllOrders = createAsyncThunk(
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Unauthorized: Token not found");
 
-      const res = await axios.get(`${Baseurl}/order/all`, {
+      const res = await axios.get(`${Baseurl}order/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -29,7 +29,7 @@ export const getUserOrders = createAsyncThunk(
       const token = localStorage.getItem("token");
       if (!token) throw new Error("User not authenticated");
 
-      const res = await axios.get(`${Baseurl}/order/myorders`, {
+      const res = await axios.get(`${Baseurl}order/myorders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -49,7 +49,7 @@ export const updateOrderStatus = createAsyncThunk(
       if (!token) throw new Error("Unauthorized: Token not found");
 
       const res = await axios.put(
-        `${Baseurl}/order/status/${orderId}`,
+        `${Baseurl}order/status/${orderId}`,
         { status, rejectReason },
         {
           headers: { Authorization: `Bearer ${token}` },
